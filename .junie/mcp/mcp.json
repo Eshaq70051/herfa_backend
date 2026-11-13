@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "C:\\php85\\php.exe",
+            "args": [
+                "F:\\laragon\\www\\herfa_backend\\artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}
