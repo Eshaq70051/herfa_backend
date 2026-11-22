@@ -49,7 +49,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.login.submit') }}" method="POST">
+        <form action="{{ (request()->isSecure() || app()->environment('production') || isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL'])) ? secure_url(route('admin.login.submit', [], false)) : route('admin.login.submit') }}" method="POST">
             @csrf
             <div class="login-form-group">
                 <label class="login-form-label">رقم الجوال أو البريد الإلكتروني</label>

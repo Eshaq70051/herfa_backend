@@ -7,6 +7,7 @@ use App\Models\AppSetting;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('production') || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || request()->header('x-forwarded-proto') === 'https') {
+            URL::forceScheme('https');
+        }
+
         Gate::before(function (User $user, string $ability): ?bool {
             if (! str_starts_with($ability, 'admin.')) {
                 return null;
