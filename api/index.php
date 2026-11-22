@@ -17,4 +17,6 @@ foreach ($dirs as $dir) {
 putenv('VERCEL=1');
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+
 require __DIR__.'/../public/index.php';
