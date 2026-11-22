@@ -97,6 +97,7 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'options' => env('DB_OPTIONS', 'endpoint=ep-dry-surf-be3zk5o9-pooler'),
         ],
 
         'sqlsrv' => [

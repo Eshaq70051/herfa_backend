@@ -42,16 +42,18 @@
             }
         }
     </script>
-    <!-- Cairo Font (Local & Offline Ready) -->
+    <!-- Cairo Font & Google Fonts Fallback -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/fonts/cairo/cairo.css') }}">
-    <!-- FontAwesome Icons (Local & Offline Ready) -->
+
+    <!-- FontAwesome Icons & CDN Fallback -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
-    <style>
-        body { font-family: 'Cairo', system-ui, -apple-system, 'Segoe UI', Tahoma, Arial, sans-serif; }
-        [x-cloak] { display: none !important; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
+
+    <!-- Custom Admin Stylesheet -->
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     <!-- Alpine.js (Local & Offline Ready) -->
     <script defer src="{{ asset('vendor/alpine/alpine.min.js') }}"></script>
 </head>

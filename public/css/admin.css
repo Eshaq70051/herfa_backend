@@ -1,0 +1,726 @@
+/**
+ * HERFA Platform - Custom Admin & Portal Stylesheet
+ * نظام حِرفة لإدارة الخدمات والصيانة
+ * ملف التنسيقات المخصص والمنظم لكافة واجهات لوحة التحكم وبوابة الدخول
+ */
+
+:root {
+    /* لوحة الألوان الأساسية الخاصة بهوية حِرفة */
+    --color-primary-50: #f0f8fc;
+    --color-primary-100: #d9eef7;
+    --color-primary-200: #b8e1f1;
+    --color-primary-300: #87ceea;
+    --color-primary-400: #4fb4df;
+    --color-primary-500: #0076AD;
+    --color-primary-600: #006594;
+    --color-primary-700: #00547c;
+    --color-primary-800: #034565;
+    --color-primary-900: #083a54;
+
+    /* ألوان الحالات والوظائف */
+    --color-success: #10b981;
+    --color-success-bg: #ecfdf5;
+    --color-warning: #f59e0b;
+    --color-warning-bg: #fffbeb;
+    --color-danger: #ef4444;
+    --color-danger-bg: #fef2f2;
+    --color-info: #0284c7;
+    --color-info-bg: #f0f9ff;
+
+    /* ألوان الخلفية والنصوص */
+    --color-bg-body: #f8fafc;
+    --color-bg-surface: #ffffff;
+    --color-sidebar: #0f172a;
+    --color-sidebar-hover: #1e293b;
+    --color-text-main: #0f172a;
+    --color-text-muted: #64748b;
+    --color-border: #e2e8f0;
+    --color-border-subtle: #f1f5f9;
+
+    /* الخطوط والظلال */
+    --font-main: 'Cairo', system-ui, -apple-system, 'Segoe UI', Tahoma, Arial, sans-serif;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   1. الإعدادات العامة والتهيئة (Reset & Base)
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-main);
+    background-color: var(--color-bg-body);
+    color: var(--color-text-main);
+    direction: rtl;
+    text-align: right;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+/* ==========================================================================
+   2. واجهة تسجيل الدخول (Admin Login Screen)
+   ========================================================================== */
+.login-page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    position: relative;
+    background-color: var(--color-sidebar);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+.login-backdrop-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.95) 100%);
+    backdrop-filter: blur(4px);
+    z-index: 1;
+}
+
+.login-card {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 440px;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(16px);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.login-brand-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-brand-logo {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 1rem;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.8rem;
+    box-shadow: 0 10px 20px rgba(0, 118, 173, 0.3);
+}
+
+.login-brand-logo img {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+}
+
+.login-brand-logo-custom {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.login-brand-logo-custom img {
+    height: 56px;
+    max-width: 240px;
+    object-fit: contain;
+}
+
+.login-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-sidebar);
+    margin: 0 0 0.4rem;
+}
+
+.login-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+.login-form-group {
+    margin-bottom: 1.25rem;
+}
+
+.login-form-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin-bottom: 0.5rem;
+}
+
+.login-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.login-input-icon {
+    position: absolute;
+    right: 1rem;
+    color: #94a3b8;
+    pointer-events: none;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.login-input {
+    width: 100%;
+    padding: 0.8125rem 2.75rem 0.8125rem 1rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: #f8fafc;
+    color: var(--color-text-main);
+    outline: none;
+    transition: var(--transition);
+}
+
+.login-input:focus {
+    background-color: #ffffff;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 4px rgba(0, 118, 173, 0.12);
+}
+
+.login-input:focus + .login-input-icon {
+    color: var(--color-primary-500);
+}
+
+.login-remember-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+}
+
+.login-remember-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.login-submit-btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+    color: #ffffff;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    font-family: inherit;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    box-shadow: 0 8px 16px rgba(0, 118, 173, 0.25);
+    transition: var(--transition);
+}
+
+.login-submit-btn:hover {
+    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+    box-shadow: 0 10px 20px rgba(0, 118, 173, 0.35);
+    transform: translateY(-1px);
+}
+
+.login-submit-btn:active {
+    transform: translateY(0);
+}
+
+.login-alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.8125rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.login-alert-danger {
+    background-color: var(--color-danger-bg);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: var(--color-danger);
+}
+
+.login-checkbox {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--color-border);
+    accent-color: var(--color-primary-500);
+    cursor: pointer;
+}
+
+.login-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border-subtle);
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   3. هيكل لوحة التحكم والشريط الجانبي (Dashboard Shell & Sidebar)
+   ========================================================================== */
+.admin-shell {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--color-bg-body);
+}
+
+/* الشريط الجانبي */
+.admin-sidebar {
+    width: 270px;
+    background-color: var(--color-sidebar);
+    color: #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width 0.25s ease-in-out, transform 0.25s ease-in-out;
+    z-index: 40;
+}
+
+.admin-sidebar.collapsed {
+    width: 78px;
+}
+
+.admin-sidebar-header {
+    height: 64px;
+    padding: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow: hidden;
+}
+
+.admin-brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.admin-brand-title {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+.admin-sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0.75rem;
+}
+
+.sidebar-category-title {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 0.75rem 0.25rem;
+    white-space: nowrap;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.6875rem 0.875rem;
+    border-radius: var(--radius-md);
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.sidebar-nav-item:hover {
+    background-color: var(--color-sidebar-hover);
+    color: #ffffff;
+}
+
+.sidebar-nav-item.active {
+    background: linear-gradient(90deg, rgba(0, 118, 173, 0.22) 0%, rgba(0, 118, 173, 0.08) 100%);
+    color: #38bdf8;
+    border-right: 3px solid var(--color-primary-400);
+}
+
+.sidebar-nav-item i {
+    width: 20px;
+    font-size: 1.05rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar-badge {
+    margin-right: auto;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+}
+
+/* المنطقة الرئيسية والـ Header */
+.admin-main-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.admin-top-header {
+    height: 64px;
+    background-color: var(--color-bg-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 30;
+}
+
+.admin-content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* ==========================================================================
+   4. بطاقات المؤشرات والإحصائيات (Stat Metric Cards)
+   ========================================================================== */
+.stat-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 0.35rem;
+}
+
+.stat-value {
+    font-size: 1.625rem;
+    font-weight: 800;
+    color: var(--color-text-main);
+    line-height: 1;
+}
+
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.stat-icon-primary {
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-600);
+}
+
+.stat-icon-success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.stat-icon-warning {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.stat-icon-danger {
+    background-color: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+/* ==========================================================================
+   5. الجداول والبيانات (Data Tables)
+   ========================================================================== */
+.admin-card {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.admin-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background-color: #ffffff;
+}
+
+.admin-card-title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    text-align: right;
+}
+
+.admin-table th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+    color: var(--color-text-main);
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ==========================================================================
+   6. الشارات والحالات (Status Badges)
+   ========================================================================== */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.badge-success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-warning {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-danger {
+    background-color: var(--color-danger-bg);
+    color: var(--color-danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-info {
+    background-color: var(--color-info-bg);
+    color: var(--color-info);
+    border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.badge-primary {
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-600);
+    border: 1px solid rgba(0, 118, 173, 0.2);
+}
+
+/* ==========================================================================
+   7. الأزرار وحقول الإدخال (Buttons & Controls)
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5625rem 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: var(--color-primary-500);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 118, 173, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-600);
+    box-shadow: 0 4px 8px rgba(0, 118, 173, 0.3);
+}
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: var(--color-text-main);
+    border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8125rem;
+    border-radius: var(--radius-sm);
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+}
+
+/* أشرطة التمرير المخصصة */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Database\Connectors\NeonPostgresConnector;
 use App\Models\AppSetting;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind('db.connector.pgsql', NeonPostgresConnector::class);
     }
 
     /**
