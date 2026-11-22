@@ -20,6 +20,15 @@ class AdminActivityLog extends Model
         'created_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $log): void {
+            if (empty($log->result)) {
+                $log->result = 'success';
+            }
+        });
+    }
+
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
