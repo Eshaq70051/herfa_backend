@@ -5,21 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * يمثل رسالة محادثة مباشرة بين العميل والحرفي مرتبطة بطلب صيانة.
- */
 class OrderMessage extends Model
 {
     use HasFactory;
 
-    protected $table = 'order_messages';
-
     protected $guarded = ['id'];
 
-    protected $casts = [
-        'is_read' => 'boolean',
-        'read_at' => 'datetime',
-    ];
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (empty($this->file_path)) {
+            return null;
+        }
+
+        if (str_starts_with($this->file_path, 'http')) {
+            return $this->file_path;
+        }
+
+        return url($this->file_path);
+    }
 
     public function order()
     {

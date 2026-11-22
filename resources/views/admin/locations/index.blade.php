@@ -142,7 +142,7 @@
                 @csrf
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">اسم المحافظة / المنطقة *</label>
-                    <input type="text" name="name" required placeholder="مثال: الرياض، مكة المكرمة، المنطقة الشرقية" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    <input type="text" name="name" required placeholder="مثال: صنعاء، عدن، تعز، حضرموت" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                 </div>
                 <div class="flex items-center justify-end gap-3 pt-3">
                     <button type="button" @click="showAddGovModal = false" class="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50">إلغاء</button>
@@ -207,7 +207,7 @@
                 <input type="hidden" name="governorate_id" :value="selectedGov.id">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">اسم المدينة / المديرية *</label>
-                    <input type="text" name="name" required placeholder="مثال: الرياض، الدرعية، الخرج" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    <input type="text" name="name" required placeholder="مثال: صنعاء، عدن، المكلا، إب" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                 </div>
                 <div class="flex items-center justify-end gap-3 pt-3">
                     <button type="button" @click="showAddDistModal = false" class="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50">إلغاء</button>
@@ -272,7 +272,7 @@
                 <input type="hidden" name="district_id" :value="selectedDist.id">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">اسم الحي السكني *</label>
-                    <input type="text" name="name" required placeholder="مثال: حي الياسمين، حي النرجس، حي الملز" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    <input type="text" name="name" required placeholder="مثال: حي حدة، حي الصافية، حي التحرير" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                 </div>
                 <div class="flex items-center justify-end gap-3 pt-3">
                     <button type="button" @click="showAddNeighModal = false" class="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50">إلغاء</button>

@@ -16,6 +16,8 @@ class RequestAssignment extends Model
 
     protected $casts = [
         'assigned_at' => 'datetime',
+        'opened_at' => 'datetime',
+        'accepted_at' => 'datetime',
         'responded_at' => 'datetime',
     ];
 

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\StoreService;
+use Illuminate\Database\Seeder;
 
 class StoreServiceSeeder extends Seeder
 {

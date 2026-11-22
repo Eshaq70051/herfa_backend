@@ -1,4 +1,4 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('title', 'إعدادات المنظومة')
 @section('page_title', 'إعدادات المنصة والهوية البصرية والتواصل (Platform Settings & Branding)')
@@ -488,7 +488,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">رمز العملة الافتراضية</label>
-                        <input type="text" name="currency_symbol" value="{{ $settings['currency_symbol'] ?? 'ر.س' }}" class="w-full p-3 rounded-xl border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <input type="text" name="currency_symbol" value="{{ $settings['currency_symbol'] ?? 'ر.ي' }}" class="w-full p-3 rounded-xl border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                     </div>
 
                     <div>
@@ -498,7 +498,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">الحد الأدنى لطلب سحب الأرباح (ر.س)</label>
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">الحد الأدنى لطلب سحب الأرباح (ر.ي)</label>
                         <input type="number" step="5" name="min_payout_amount" value="{{ $settings['min_payout_amount'] ?? '50.00' }}" class="w-full p-3 rounded-xl border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono">
                         <p class="text-[11px] text-gray-400 mt-1">أقل رصيد يسمح للحرفي بطلب تحويله لحسابه البنكي</p>
                     </div>

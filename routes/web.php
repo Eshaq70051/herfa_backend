@@ -1,33 +1,51 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminOrderController;
-use App\Http\Controllers\Admin\AdminCraftsmanController;
+use App\Http\Controllers\Admin\AccountingController;
+use App\Http\Controllers\Admin\AdminAdvertisementController;
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminCraftsmanController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminFinancialController;
 use App\Http\Controllers\Admin\AdminLocationController;
-use App\Http\Controllers\Admin\AdminAdvertisementController;
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminStoreServiceController;
+use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\UserController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard');
 });
 
-// Fallback login route for Laravel default auth redirect
+// مسار تسجيل الدخول الافتراضي لإعادة التوجيه عند انتهاء الجلسة
 Route::get('/login', function () {
     return redirect()->route('admin.login');
 })->name('login');
 
-// Admin Auth Routes
+// مسارات مصادقة وتسجيل دخول لوحة الإدارة
 Route::get('/admin/login', [AdminDashboardController::class, 'showLogin'])->name('admin.login');
 Route::post('/admin/login', [AdminDashboardController::class, 'login'])->name('admin.login.submit');
-Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->name('admin.logout');
+Route::post('/admin/logout', [AdminDashboardController::class, 'logout'])->middleware('auth')->name('admin.logout');
 
-// Protected Admin Routes
-Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
+// مسارات لوحة التحكم الإدارية المحمية بنظام الصلاحيات والأدوار
+Route::prefix('admin')->middleware(['auth', 'admin.permission'])->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard.shortcut');
+
+    Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{id}/status', 'updateStatus')->name('status');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::get('/roles', 'roles')->name('roles');
+        Route::post('/roles', 'storeRole')->name('roles.store');
+        Route::put('/roles/{id}', 'updateRole')->name('roles.update');
+        Route::put('/roles/{id}/permissions', 'updateRolePermissions')->name('roles.permissions');
+        Route::delete('/roles/{id}', 'destroyRole')->name('roles.destroy');
+    });
 
     // 1. Orders CRUD (الطلبات)
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
@@ -36,6 +54,8 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{id}', [AdminOrderController::class, 'update'])->name('orders.update');
     Route::post('/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+    Route::post('/orders/{id}/confirm-payment', [AdminOrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
+    Route::post('/orders/{id}/update-payment', [AdminOrderController::class, 'updatePayment'])->name('orders.update-payment');
     Route::delete('/orders/{id}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
 
     // 2. Craftsmen CRUD (الحرفيين)
@@ -66,8 +86,10 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
 
     // 4. Clients CRUD (العملاء)
     Route::get('/clients', [AdminFinancialController::class, 'clients'])->name('clients.index');
+    Route::get('/clients/{id}', [AdminFinancialController::class, 'showClient'])->name('clients.show');
     Route::post('/clients', [AdminFinancialController::class, 'storeClient'])->name('clients.store');
     Route::post('/clients/{id}', [AdminFinancialController::class, 'updateClient'])->name('clients.update');
+    Route::post('/clients/{id}/block', [AdminFinancialController::class, 'toggleBlockClient'])->name('clients.block');
     Route::delete('/clients/{id}', [AdminFinancialController::class, 'destroyClient'])->name('clients.destroy');
 
     // 5. Locations CRUD (المناطق، المحافظات، المديريات، الأحياء)
@@ -93,6 +115,9 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
 
     // 7. Financials & Payment Methods CRUD (المالية ووسائل الدفع)
     Route::get('/financials/payouts', [AdminFinancialController::class, 'payouts'])->name('financials.payouts');
+    Route::get('/financials/payout-requests', [AdminFinancialController::class, 'payoutRequests'])->name('financials.payout-requests');
+    Route::post('/financials/payout-requests/{id}/approve', [AdminFinancialController::class, 'approvePayout'])->name('financials.payout-requests.approve');
+    Route::post('/financials/payout-requests/{id}/reject', [AdminFinancialController::class, 'rejectPayout'])->name('financials.payout-requests.reject');
     Route::post('/financials/transactions', [AdminFinancialController::class, 'storeTransaction'])->name('financials.transactions.store');
     Route::delete('/financials/transactions/{id}', [AdminFinancialController::class, 'destroyTransaction'])->name('financials.transactions.destroy');
     Route::post('/financials/payouts/{id}/process', [AdminFinancialController::class, 'processPayout'])->name('financials.payouts.process');
@@ -100,10 +125,19 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::post('/financials/payment-methods/{id}', [AdminFinancialController::class, 'updatePaymentMethod'])->name('payment-methods.update');
     Route::delete('/financials/payment-methods/{id}', [AdminFinancialController::class, 'destroyPaymentMethod'])->name('payment-methods.destroy');
 
-    // 8. Reviews (التقييمات)
+    // 7.1 Coupons (كوبونات الخصم)
+    Route::get('/coupons', [AdminFinancialController::class, 'coupons'])->name('coupons.index');
+    Route::post('/coupons', [AdminFinancialController::class, 'storeCoupon'])->name('coupons.store');
+    Route::post('/coupons/{id}', [AdminFinancialController::class, 'updateCoupon'])->name('coupons.update');
+    Route::post('/coupons/{id}/toggle', [AdminFinancialController::class, 'toggleCoupon'])->name('coupons.toggle');
+    Route::delete('/coupons/{id}', [AdminFinancialController::class, 'destroyCoupon'])->name('coupons.destroy');
+
+    // 8. Reviews & Disputes (التقييمات والنزاعات)
     Route::get('/reviews', [AdminFinancialController::class, 'reviews'])->name('reviews.index');
     Route::post('/reviews/{id}/status', [AdminFinancialController::class, 'updateReviewStatus'])->name('reviews.status');
     Route::delete('/reviews/{id}', [AdminFinancialController::class, 'destroyReview'])->name('reviews.destroy');
+    Route::get('/disputes', [AdminFinancialController::class, 'disputes'])->name('disputes.index');
+    Route::post('/disputes/{id}/resolve', [AdminFinancialController::class, 'resolveDispute'])->name('disputes.resolve');
 
     // 9. Support Tickets (الدعم الفني والشكاوى)
     Route::get('/tickets', [AdminFinancialController::class, 'tickets'])->name('tickets.index');
@@ -117,4 +151,73 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::post('/settings', [AdminFinancialController::class, 'updateSettings'])->name('settings.update');
     Route::post('/settings/custom', [AdminFinancialController::class, 'storeSetting'])->name('settings.store');
     Route::delete('/settings/{id}', [AdminFinancialController::class, 'destroySetting'])->name('settings.destroy');
+
+    Route::prefix('accounting')->name('accounting.')->controller(AccountingController::class)->group(function () {
+        Route::get('/currencies', 'currencies')->name('currencies');
+        Route::post('/currencies', 'storeCurrency')->name('currencies.store');
+        Route::post('/currencies/{id}', 'updateCurrency')->name('currencies.update');
+        Route::post('/currencies/{id}/default', 'setDefaultCurrency')->name('currencies.default');
+        Route::delete('/currencies/{id}', 'destroyCurrency')->name('currencies.destroy');
+        Route::get('/periods', 'periods')->name('periods');
+        Route::post('/periods', 'storePeriod')->name('periods.store');
+        Route::post('/periods/{id}/status', 'updatePeriodStatus')->name('periods.status');
+        Route::delete('/periods/{id}', 'destroyPeriod')->name('periods.destroy');
+        Route::get('/accounts', 'accounts')->name('accounts');
+        Route::post('/accounts', 'storeAccount')->name('accounts.store');
+        Route::post('/accounts/{id}', 'updateAccount')->name('accounts.update');
+        Route::delete('/accounts/{id}', 'destroyAccount')->name('accounts.destroy');
+        Route::get('/journal', 'journal')->name('journal');
+        Route::post('/journal', 'storeJournalEntry')->name('journal.store');
+        Route::post('/journal/{id}/reverse', 'reverseJournalEntry')->name('journal.reverse');
+        Route::delete('/journal/{id}', 'destroyJournalEntry')->name('journal.destroy');
+        Route::get('/earnings', 'earnings')->name('earnings');
+        Route::post('/earnings/{id}/approve', 'approveEarning')->name('earnings.approve');
+        Route::get('/collections', 'collections')->name('collections');
+        Route::post('/collections/{id}/verify', 'verifyCollection')->name('collections.verify');
+        Route::get('/settlements', 'settlements')->name('settlements');
+        Route::post('/settlements/{id}/approve', 'approveSettlement')->name('settlements.approve');
+        Route::post('/remittances', 'storeRemittance')->name('remittances.store');
+        Route::post('/remittances/{id}/confirm', 'confirmRemittance')->name('remittances.confirm');
+        Route::get('/payouts', 'payouts')->name('payouts');
+        Route::post('/payouts', 'storePayoutDirect')->name('payouts.store');
+        Route::post('/payouts/{id}/process', 'processPayout')->name('payouts.process');
+        Route::get('/reports', 'reports')->name('reports');
+    });
+
+    Route::prefix('suppliers')->name('suppliers.')->controller(SupplierController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/invoices', 'invoices')->name('invoices');
+        Route::post('/invoices', 'storeInvoice')->name('invoices.store');
+        Route::post('/invoices/{id}/status', 'updateInvoiceStatus')->name('invoices.status');
+        Route::delete('/invoices/{id}', 'destroyInvoice')->name('invoices.destroy');
+        Route::get('/payments', 'payments')->name('payments');
+        Route::post('/payments', 'storePayment')->name('payments.store');
+        Route::post('/payments/{id}/confirm', 'confirmPayment')->name('payments.confirm');
+        Route::delete('/payments/{id}', 'destroyPayment')->name('payments.destroy');
+        Route::get('/returns', 'returns')->name('returns');
+        Route::post('/returns', 'storeReturn')->name('returns.store');
+        Route::delete('/returns/{id}', 'destroyReturn')->name('returns.destroy');
+        Route::post('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+    });
+
+    Route::prefix('notifications')->name('notifications.')->controller(NotificationController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'send')->name('send');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+    });
+
+    Route::prefix('employees')->name('employees.')->controller(EmployeeController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'storeEmployee')->name('store');
+        Route::get('/{id}', 'showEmployee')->name('show');
+        Route::post('/{id}', 'updateEmployee')->name('update');
+        Route::post('/{id}/permissions', 'updateEmployeePermissions')->name('permissions');
+        Route::post('/{id}/financial-transaction', 'storeFinancialTransaction')->name('financial');
+        Route::delete('/{id}', 'destroyEmployee')->name('destroy');
+        Route::post('/departments', 'storeDepartment')->name('departments.store');
+        Route::post('/departments/{id}', 'updateDepartment')->name('departments.update');
+        Route::delete('/departments/{id}', 'destroyDepartment')->name('departments.destroy');
+    });
 });

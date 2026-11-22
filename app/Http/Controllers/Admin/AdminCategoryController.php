@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Service;
 use App\Models\ServiceImage;
+use App\Models\ServicePrice;
+use Illuminate\Http\Request;
 
 class AdminCategoryController extends Controller
 {
     public function index()
     {
         $categories = Category::withCount('services')->orderBy('sort_order')->get();
+
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -29,7 +31,7 @@ class AdminCategoryController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('categories', 'public');
-            $imagePath = '/storage/' . $path;
+            $imagePath = '/storage/'.$path;
         }
 
         Category::create([
@@ -65,7 +67,7 @@ class AdminCategoryController extends Controller
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('categories', 'public');
-            $data['image'] = '/storage/' . $path;
+            $data['image'] = '/storage/'.$path;
         }
 
         $category->update($data);
@@ -84,7 +86,8 @@ class AdminCategoryController extends Controller
 
     public function services($categoryId)
     {
-        $category = Category::with('services.images')->findOrFail($categoryId);
+        $category = Category::with('services.images', 'services.prices')->findOrFail($categoryId);
+
         return view('admin.categories.services', compact('category'));
     }
 
@@ -95,22 +98,29 @@ class AdminCategoryController extends Controller
             'name' => 'required|string|max:150',
             'description' => 'nullable|string',
             'base_price' => 'required|numeric|min:0',
-            'warranty_days' => 'required|integer|min:0',
+            'pricing_type' => 'nullable|in:FIXED,HOURLY,CUSTOM_QUOTE',
             'image' => 'nullable|image|max:5120',
         ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('services', 'public');
-            $imagePath = '/storage/' . $path;
+            $imagePath = '/storage/'.$path;
         }
 
         $service = $category->services()->create([
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
-            'base_price' => $validated['base_price'],
-            'warranty_days' => $validated['warranty_days'],
-            'image' => $imagePath,
+            'pricing_type' => $validated['pricing_type'] ?? 'FIXED',
+            'image' => $imagePath ?? $category->image,
+            'is_active' => true,
+        ]);
+
+        ServicePrice::create([
+            'service_id' => $service->id,
+            'currency_id' => 1,
+            'fixed_price' => $validated['base_price'],
+            'first_hour_price' => $validated['base_price'],
             'is_active' => true,
         ]);
 
@@ -131,21 +141,20 @@ class AdminCategoryController extends Controller
             'name' => 'required|string|max:150',
             'description' => 'nullable|string',
             'base_price' => 'required|numeric|min:0',
-            'warranty_days' => 'required|integer|min:0',
+            'pricing_type' => 'nullable|in:FIXED,HOURLY,CUSTOM_QUOTE',
             'image' => 'nullable|image|max:5120',
         ]);
 
         $data = [
             'name' => $validated['name'],
             'description' => $validated['description'] ?? $service->description,
-            'base_price' => $validated['base_price'],
-            'warranty_days' => $validated['warranty_days'],
+            'pricing_type' => $validated['pricing_type'] ?? $service->pricing_type,
             'is_active' => $request->has('is_active') ? true : false,
         ];
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('services', 'public');
-            $data['image'] = '/storage/' . $path;
+            $data['image'] = '/storage/'.$path;
 
             ServiceImage::create([
                 'service_id' => $service->id,
@@ -154,6 +163,15 @@ class AdminCategoryController extends Controller
         }
 
         $service->update($data);
+
+        ServicePrice::updateOrCreate(
+            ['service_id' => $service->id, 'currency_id' => 1],
+            [
+                'fixed_price' => $validated['base_price'],
+                'first_hour_price' => $validated['base_price'],
+                'is_active' => true,
+            ]
+        );
 
         return back()->with('success', 'تم تعديل الخدمة بنجاح');
     }

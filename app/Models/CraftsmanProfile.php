@@ -12,16 +12,38 @@ class CraftsmanProfile extends Model
 {
     use HasFactory;
 
+    protected $table = 'profiles_craftsman';
+
     protected $guarded = ['id'];
 
     protected $casts = [
         'availability_status' => 'boolean',
+        'age' => 'integer',
+        'experience_years' => 'integer',
         'latitude' => 'float',
         'longitude' => 'float',
-        'commission_rate' => 'decimal:2',
     ];
 
-    protected $appends = ['verification_status', 'is_verified'];
+    protected $appends = [
+        'verification_status',
+        'is_verified',
+        'years_of_experience',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(CraftsmanDocument::class, 'craftsman_profile_id');
+    }
+
+    public function getYearsOfExperienceAttribute(): int
+    {
+        return (int) ($this->attributes['experience_years'] ?? 3);
+    }
 
     public function getVerificationStatusAttribute(): string
     {
@@ -30,12 +52,6 @@ class CraftsmanProfile extends Model
 
     public function getIsVerifiedAttribute(): bool
     {
-        return ($this->attributes['approval_status'] ?? '') === 'approved' &&
-               ($this->attributes['identity_status'] ?? '') === 'verified';
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
+        return ($this->attributes['approval_status'] ?? '') === 'approved';
     }
 }

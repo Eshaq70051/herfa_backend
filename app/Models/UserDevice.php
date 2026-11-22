@@ -12,6 +12,8 @@ class UserDevice extends Model
 {
     use HasFactory;
 
+    protected $table = 'devices_user';
+
     protected $guarded = ['id'];
 
     protected $casts = [

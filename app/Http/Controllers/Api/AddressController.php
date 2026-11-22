@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Address;
-use App\Models\Governorate;
+use App\Models\District;
+use Illuminate\Http\Request;
 
 class AddressController extends Controller
 {
     public function index(Request $request)
     {
-        $addresses = Address::with('governorate')
+        $addresses = Address::with(['district.governorate', 'neighborhood'])
             ->where('user_id', $request->user()->id)
             ->orderByDesc('is_default')
             ->latest()
@@ -26,56 +26,52 @@ class AddressController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:100',
-            'address_line' => 'required|string',
-            'city' => 'nullable|string|max:100',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'neighborhood' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'title' => 'required|string|max:50',
+            'address_line' => 'required|string|max:255',
+            'district_id' => 'nullable|exists:districts,id',
+            'neighborhood_id' => 'nullable|exists:neighborhoods,id',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
             'is_default' => 'nullable|boolean',
         ]);
 
         $userId = $request->user()->id;
 
-        if (!empty($validated['is_default'])) {
+        if (! empty($validated['is_default'])) {
             Address::where('user_id', $userId)->update(['is_default' => false]);
         }
 
-        $cityName = $validated['city'] ?? 'صنعاء';
-        $gov = Governorate::where('name', 'like', "%{$cityName}%")->first()
-            ?? Governorate::first();
+        $districtId = $validated['district_id'] ?? District::first()?->id ?? 1;
 
         $address = Address::create([
             'user_id' => $userId,
-            'governorate_id' => $gov?->id ?? 1,
-            'district_id' => null,
+            'district_id' => $districtId,
+            'neighborhood_id' => $validated['neighborhood_id'] ?? null,
             'label' => $validated['title'],
-            'address_details' => $validated['address_line'] . (!empty($validated['notes']) ? ' (' . $validated['notes'] . ')' : ''),
-            'neighborhood' => $validated['neighborhood'] ?? null,
-            'latitude' => $validated['latitude'],
-            'longitude' => $validated['longitude'],
-            'is_default' => !empty($validated['is_default']),
+            'address_details' => $validated['address_line'],
+            'latitude' => $validated['latitude'] ?? null,
+            'longitude' => $validated['longitude'] ?? null,
+            'is_default' => ! empty($validated['is_default']),
         ]);
 
         return response()->json([
             'status' => true,
-            'message' => 'تمت إضافة العنوان بنجاح',
-            'data' => $address->load('governorate'),
+            'message' => 'تم حفظ العنوان الجديد بنجاح',
+            'data' => $address->load(['district.governorate', 'neighborhood']),
         ], 201);
     }
 
     public function setDefault(Request $request, $id)
     {
         $userId = $request->user()->id;
-        Address::where('user_id', $userId)->update(['is_default' => false]);
         $address = Address::where('user_id', $userId)->findOrFail($id);
-        $address->is_default = true;
-        $address->save();
+
+        Address::where('user_id', $userId)->update(['is_default' => false]);
+        $address->update(['is_default' => true]);
 
         return response()->json([
             'status' => true,
-            'message' => 'تم تعيين العنوان كافتراضي بنجاح',
+            'message' => 'تم تعيين العنوان كعنوان افتراضي',
             'data' => $address,
         ]);
     }

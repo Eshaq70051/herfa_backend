@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 // والإعدادات وطرق الدفع والتحقق من القسائم.
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/otp/send', [AuthController::class, 'sendOtp']);
+Route::post('/auth/otp/verify', [AuthController::class, 'verifyOtp']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::get('/services', [CategoryController::class, 'services']);
@@ -47,9 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::post('/orders/{id}/invoice', [OrderController::class, 'updateInvoice']);
     Route::post('/orders/{id}/pay', [OrderController::class, 'pay']);
+    Route::post('/orders/{id}/verify-completion', [OrderController::class, 'verifyCompletion']);
+    Route::post('/orders/{id}/dispute', [OrderController::class, 'openDispute']);
+    Route::post('/orders/{id}/apply-coupon', [OrderController::class, 'applyCoupon']);
     Route::post('/orders/{id}/warranty', [OrderController::class, 'claimWarranty']);
     Route::post('/orders/{id}/location', [OrderController::class, 'updateLocation']);
     Route::get('/orders/{id}/location', [OrderController::class, 'getLocation']);
+    Route::get('/disputes', [OrderController::class, 'listDisputes']);
 
     // إرسال عرض سعر مرتبط بطلب معيّن.
     Route::post('/orders/{id}/offers', [GeneralApiController::class, 'submitOffer']);
@@ -58,13 +64,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{id}/messages', [GeneralApiController::class, 'getMessages']);
     Route::post('/orders/{id}/messages', [GeneralApiController::class, 'sendMessage']);
 
-    // إضافة تقييم بعد تنفيذ الخدمة.
+    // إضافة تقييم بعد تنفيذ الخدمة وتقييم الحرفي للعميل.
     Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::post('/orders/{id}/rate-customer', [ReviewController::class, 'rateCustomer']);
 
     // عرض المحفظة وطلب سحب الرصيد أو إيداع مبلغ فيها.
     Route::get('/wallet', [WalletController::class, 'index']);
     Route::post('/wallet/payout', [WalletController::class, 'requestPayout']);
-    Route::post('/wallet/deposit', [GeneralApiController::class, 'depositWallet']);
+    Route::post('/wallet/deposit', [WalletController::class, 'deposit']);
 
     // عرض الإشعارات وتحديد إشعار واحد أو جميع الإشعارات كمقروءة.
     Route::get('/notifications', [GeneralApiController::class, 'getNotifications']);

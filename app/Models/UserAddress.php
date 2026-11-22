@@ -12,6 +12,8 @@ class UserAddress extends Model
 {
     use HasFactory;
 
+    protected $table = 'addresses_user';
+
     protected $guarded = ['id'];
 
     protected $casts = [

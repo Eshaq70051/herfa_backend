@@ -11,7 +11,7 @@
         <!-- Status Tabs -->
         <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
             <a href="{{ route('admin.craftsmen.index', ['verification' => 'all']) }}" class="px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap {{ request('verification', 'all') === 'all' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
-                الكل ({{ \App\Models\User::where('role', 'craftsman')->count() }})
+                الكل ({{ \App\Models\User::craftsmen()->count() }})
             </a>
             <a href="{{ route('admin.craftsmen.index', ['verification' => 'pending']) }}" class="px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap {{ request('verification') === 'pending' ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100' }}">
                 بانتظار الاعتماد
@@ -78,7 +78,7 @@
                         </td>
                         <td class="py-4 px-4 text-xs font-semibold text-gray-700">
                             <span class="block text-gray-900">{{ $tech->craftsmanProfile->profession ?? 'صيانة عامة' }}</span>
-                            <span class="text-gray-400">{{ $tech->craftsmanProfile->city ?? 'الرياض' }}</span>
+                            <span class="text-gray-400">{{ $tech->craftsmanProfile->city ?? 'صنعاء' }}</span>
                         </td>
                         <td class="py-4 px-4 text-xs">
                             @php
@@ -98,7 +98,7 @@
                         </td>
                         <td class="py-4 px-4 text-xs">
                             <span class="font-bold text-gray-800">{{ $tech->craftsmanProfile->commission_rate ?? 15 }}%</span>
-                            <div class="font-mono text-emerald-600 font-bold">{{ number_format($tech->wallet_balance, 2) }} ر.س</div>
+                            <div class="font-mono text-emerald-600 font-bold">{{ number_format($tech->wallet_balance, 2) }} ر.ي</div>
                         </td>
                         <td class="py-4 px-4">
                             @php
@@ -142,7 +142,7 @@
                                     email: '{{ $tech->email }}',
                                     profession: '{{ addslashes($tech->craftsmanProfile->profession ?? '') }}',
                                     experience_years: '{{ $tech->craftsmanProfile->experience_years ?? 3 }}',
-                                    city: '{{ addslashes($tech->craftsmanProfile->city ?? 'الرياض') }}',
+                                    city: '{{ addslashes($tech->craftsmanProfile->city ?? 'صنعاء') }}',
                                     commission_rate: '{{ $tech->craftsmanProfile->commission_rate ?? 15 }}',
                                     profile_image_url: '{{ $tech->profile_image ? (str_starts_with($tech->profile_image, 'http') ? $tech->profile_image : url($tech->profile_image)) : '' }}',
                                     wallet_balance: '{{ $tech->wallet_balance }}'
@@ -203,7 +203,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1">رقم الجوال *</label>
-                        <input type="text" name="phone" required placeholder="05XXXXXXXX" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-mono font-semibold focus:ring-2 focus:ring-emerald-500 outline-none" dir="ltr">
+                        <input type="text" name="phone" required placeholder="77XXXXXXXX" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-mono font-semibold focus:ring-2 focus:ring-emerald-500 outline-none" dir="ltr">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1">البريد الإلكتروني (اختياري)</label>
@@ -236,7 +236,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1">المدينة *</label>
-                        <input type="text" name="city" value="الرياض" required class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" name="city" value="صنعاء" required class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-primary-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1">نسبة عمولة المنصة (%)</label>
@@ -320,7 +320,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">رصيد المحفظة (ر.س)</label>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">رصيد المحفظة (ر.ي)</label>
                     <input type="number" step="0.5" name="wallet_balance" x-model="editData.wallet_balance" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 

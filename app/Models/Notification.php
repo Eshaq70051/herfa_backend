@@ -32,6 +32,11 @@ class Notification extends Model
         return $this->belongsTo(NotificationType::class, 'notification_type_id');
     }
 
+    public function notificationType()
+    {
+        return $this->type();
+    }
+
     public function logs()
     {
         return $this->hasMany(NotificationLog::class);

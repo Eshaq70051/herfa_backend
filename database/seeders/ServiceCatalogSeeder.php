@@ -147,6 +147,8 @@ class ServiceCatalogSeeder extends Seeder
                     'base_price' => $price,
                     'pricing_type' => 'custom_quote',
                     'warranty_days' => $warrantyDays,
+                    'image' => $category->image ?? '/storage/categories/plumbing.svg',
+                    'icon' => $category->icon ?? 'fa-wrench',
                     'is_active' => true,
                 ],
             );

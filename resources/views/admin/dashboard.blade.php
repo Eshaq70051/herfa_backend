@@ -6,6 +6,61 @@
 @section('content')
 <div class="space-y-6">
 
+    @if($openDisputes > 0 || $pendingPayoutRequests > 0 || $pendingVerifications > 0)
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        @if($openDisputes > 0)
+        <div class="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-scale-unbalanced text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm text-red-900">{{ $openDisputes }} نزاعات بانتظار الفصل</h4>
+                    <p class="text-xs text-red-600">شكاوى ومطالبات ضمان من العملاء</p>
+                </div>
+            </div>
+            <a href="{{ route('admin.tickets.index') }}" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 transition">
+                مراجعة
+            </a>
+        </div>
+        @endif
+
+        @if($pendingPayoutRequests > 0)
+        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-money-bill-transfer text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm text-amber-900">{{ $pendingPayoutRequests }} طلبات سحب أرباح</h4>
+                    <p class="text-xs text-amber-600">بانتظار التحويل والتدقيق المالي</p>
+                </div>
+            </div>
+            <a href="{{ route('admin.accounting.payouts') }}" class="px-3 py-1.5 bg-amber-600 text-white text-xs font-bold rounded-lg hover:bg-amber-700 transition">
+                معالجة
+            </a>
+        </div>
+        @endif
+
+        @if($pendingVerifications > 0)
+        <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-id-card text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm text-blue-900">{{ $pendingVerifications }} فني بانتظار الاعتماد</h4>
+                    <p class="text-xs text-blue-600">فحص وثائق الهوية والشهادات</p>
+                </div>
+            </div>
+            <a href="{{ route('admin.craftsmen.index', ['verification' => 'pending']) }}" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition">
+                فحص
+            </a>
+        </div>
+        @endif
+    </div>
+    @endif
+
     <!-- KPI Metric Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
@@ -142,8 +197,11 @@
                 <tbody class="divide-y divide-gray-100 text-sm">
                     @forelse($recentOrders as $order)
                     <tr class="hover:bg-gray-50/60 transition">
-                        <td class="py-4 px-4 font-mono font-bold text-emerald-700 text-xs">
-                            {{ $order->request_number }}
+                        <td class="py-4 px-4 font-mono font-bold text-xs">
+                            <a href="{{ route('admin.orders.show', $order->id) }}" class="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 hover:underline" title="عرض تفاصيل الطلب">
+                                <span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-black">#{{ $order->clean_number }}</span>
+                                <span class="text-[10px] text-gray-400 font-normal">({{ $order->request_number }})</span>
+                            </a>
                         </td>
                         <td class="py-4 px-4 font-semibold text-gray-900 text-xs">
                             {{ $order->service->name ?? '-' }}
@@ -154,14 +212,16 @@
                         </td>
                         <td class="py-4 px-4">
                             @php
-                                $statusName = $order->status->name ?? 'pending';
+                                $statusCode = strtolower($order->status->code ?? $order->status->name ?? 'pending');
                             @endphp
-                            @if($statusName === 'completed')
+                            @if(in_array($statusCode, ['completed', 'مكتمل']))
                                 <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">مكتمل</span>
-                            @elseif($statusName === 'in_progress')
+                            @elseif(in_array($statusCode, ['in_progress', 'قيد التنفيذ']))
                                 <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-teal-50 text-teal-700 border border-teal-200">قيد التنفيذ</span>
-                            @elseif($statusName === 'cancelled')
+                            @elseif(in_array($statusCode, ['cancelled', 'ملغي']))
                                 <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-50 text-red-700 border border-red-200">ملغي</span>
+                            @elseif(in_array($statusCode, ['assigned', 'accepted', 'تم الإسناد', 'مقبول']))
+                                <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200">{{ $order->status->name ?? 'مسند' }}</span>
                             @else
                                 <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-50 text-amber-700 border border-amber-200">بانتظار فني</span>
                             @endif

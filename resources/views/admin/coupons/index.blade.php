@@ -1,4 +1,4 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('title', 'إدارة الكوبونات والخصومات')
 @section('page_title', 'كوبونات الخصم والعروض الترويجية')
@@ -32,13 +32,13 @@
                     @if($cp->discount_type === 'percentage')
                         {{ $cp->discount_value }}% <span class="text-xs font-bold text-gray-500">خصم نسبي</span>
                     @else
-                        {{ number_format($cp->discount_value, 2) }} <span class="text-xs font-bold text-gray-500">ر.س خصم ثابت</span>
+                        {{ number_format($cp->discount_value, 2) }} <span class="text-xs font-bold text-gray-500">ر.ي خصم ثابت</span>
                     @endif
                 </p>
                 @if($cp->max_discount)
-                    <p class="text-xs text-gray-400 mt-1">أقصى خصم: {{ $cp->max_discount }} ر.س</p>
+                    <p class="text-xs text-gray-400 mt-1">أقصى خصم: {{ $cp->max_discount }} ر.ي</p>
                 @endif
-                <p class="text-xs text-gray-500 mt-1">الحد الأدنى للطلب: {{ $cp->min_order_value }} ر.س</p>
+                <p class="text-xs text-gray-500 mt-1">الحد الأدنى للطلب: {{ $cp->min_order_value }} ر.ي</p>
             </div>
 
             <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
@@ -69,7 +69,7 @@
                         <label class="block text-xs font-bold text-gray-600 mb-1">نوع الخصم</label>
                         <select name="discount_type" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:border-emerald-500 outline-none">
                             <option value="percentage">نسبة مئوية (%)</option>
-                            <option value="fixed">مبلغ ثابت (ر.س)</option>
+                            <option value="fixed">مبلغ ثابت (ر.ي)</option>
                         </select>
                     </div>
                     <div>

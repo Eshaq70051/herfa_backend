@@ -1,4 +1,4 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('title', 'خدمات قسم ' . $category->name)
 @section('page_title', 'خدمات قسم: ' . $category->name)
@@ -58,7 +58,7 @@
                             {{ $service->description ?? 'لا يوجد وصف' }}
                         </td>
                         <td class="py-4 px-4 font-mono font-bold text-emerald-600">
-                            {{ number_format($service->base_price, 2) }} ر.س
+                            {{ number_format($service->base_price, 2) }} ر.ي
                         </td>
                         <td class="py-4 px-4 text-xs font-bold text-gray-700">
                             <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-0.5 rounded-lg border border-amber-200">
@@ -130,7 +130,7 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1">السعر الأساسي (ر.س) *</label>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">السعر الأساسي (ر.ي) *</label>
                         <input type="number" step="0.5" name="base_price" required placeholder="80.00" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-mono font-semibold focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
@@ -183,7 +183,7 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1">السعر الأساسي (ر.س) *</label>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">السعر الأساسي (ر.ي) *</label>
                         <input type="number" step="0.5" name="base_price" x-model="editData.base_price" required class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-mono font-semibold focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>

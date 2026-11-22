@@ -19,17 +19,6 @@ class Transaction extends Model
         'paid_at' => 'datetime',
     ];
 
-    protected $appends = ['receipt_image_url'];
-
-    public function getReceiptImageUrlAttribute()
-    {
-        if ($this->receipt_image) {
-            return str_starts_with($this->receipt_image, 'http') ? $this->receipt_image : asset($this->receipt_image);
-        }
-
-        return null;
-    }
-
     public function request()
     {
         return $this->belongsTo(ServiceRequest::class, 'request_id');
@@ -42,6 +31,11 @@ class Transaction extends Model
 
     public function paymentMethod()
     {
-        return $this->belongsTo(PaymentMethod::class);
+        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class, 'currency_id');
     }
 }

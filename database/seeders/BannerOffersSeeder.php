@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Offer;
 use App\Models\Advertisement;
+use App\Models\Offer;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class BannerOffersSeeder extends Seeder
 {

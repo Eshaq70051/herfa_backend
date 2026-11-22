@@ -7,10 +7,40 @@
     @if(!empty($platformSettings['site_favicon']))
         <link rel="icon" href="{{ asset($platformSettings['site_favicon']) }}">
     @endif
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>body { font-family: 'Cairo', sans-serif; }</style>
+    <!-- Tailwind CSS (Local & Offline Ready) -->
+    <script src="{{ asset('vendor/tailwind/tailwind.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f8fc',
+                            100: '#d9eef7',
+                            200: '#b8e1f1',
+                            300: '#87ceea',
+                            400: '#4fb4df',
+                            500: '#0076AD',
+                            600: '#006594',
+                            700: '#00547c',
+                            800: '#034565',
+                            900: '#083a54',
+                            950: '#052538',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'system-ui', '-apple-system', 'Segoe UI', 'Tahoma', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Cairo Font (Local & Offline Ready) -->
+    <link rel="stylesheet" href="{{ asset('vendor/fonts/cairo/cairo.css') }}">
+    <!-- FontAwesome Icons (Local & Offline Ready) -->
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
+    <style>body { font-family: 'Cairo', system-ui, -apple-system, 'Segoe UI', Tahoma, Arial, sans-serif; }</style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-cover bg-center relative" style="background-image: url('{{ !empty($platformSettings['login_background']) ? asset($platformSettings['login_background']) : '' }}'); background-color: {{ $platformSettings['sidebar_color'] ?? '#0f172a' }};">
 
@@ -47,7 +77,7 @@
                     <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
                         <i class="fa-solid fa-user"></i>
                     </span>
-                    <input type="text" name="phone" value="{{ old('phone', '777000000') }}" required class="w-full pr-11 pl-4 py-3 rounded-xl border border-gray-300 focus:border-[#0076AD] focus:ring-2 focus:ring-[#0076AD]/20 outline-none text-left font-medium transition" dir="ltr" placeholder="777000000">
+                    <input type="text" name="phone" value="{{ old('phone', '') }}" required class="w-full pr-11 pl-4 py-3 rounded-xl border border-gray-300 focus:border-[#0076AD] focus:ring-2 focus:ring-[#0076AD]/20 outline-none text-left font-medium transition" dir="ltr" placeholder="777000000">
                 </div>
             </div>
 
@@ -57,7 +87,7 @@
                     <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
                         <i class="fa-solid fa-lock"></i>
                     </span>
-                    <input type="password" name="password" value="password123" required class="w-full pr-11 pl-4 py-3 rounded-xl border border-gray-300 focus:border-[#0076AD] focus:ring-2 focus:ring-[#0076AD]/20 outline-none transition" placeholder="••••••••">
+                    <input type="password" name="password" value="" required class="w-full pr-11 pl-4 py-3 rounded-xl border border-gray-300 focus:border-[#0076AD] focus:ring-2 focus:ring-[#0076AD]/20 outline-none transition" placeholder="••••••••">
                 </div>
             </div>
 

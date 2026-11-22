@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('account_status', ['active', 'inactive', 'suspended'])->default('active');
             $table->timestamp('phone_verified_at')->nullable();
             $table->timestamp('last_login_at')->nullable();
-            
+
             // حقول إضافية لدعم التطبيق الهجين الموحد والمحفظة
             $table->enum('current_mode', ['customer', 'craftsman'])->default('customer');
             $table->decimal('wallet_balance', 12, 2)->default(0.00);

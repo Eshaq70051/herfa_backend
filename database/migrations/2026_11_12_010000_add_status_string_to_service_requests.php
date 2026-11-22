@@ -13,13 +13,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('service_requests', function (Blueprint $table) {
-            if (!Schema::hasColumn('service_requests', 'status')) {
+            if (! Schema::hasColumn('service_requests', 'status')) {
                 $table->string('status', 50)->default('pending_craftsman')->after('status_id');
             }
-            if (!Schema::hasColumn('service_requests', 'cancellation_reason')) {
+            if (! Schema::hasColumn('service_requests', 'cancellation_reason')) {
                 $table->text('cancellation_reason')->nullable()->after('status');
             }
-            if (!Schema::hasColumn('service_requests', 'cancelled_by')) {
+            if (! Schema::hasColumn('service_requests', 'cancelled_by')) {
                 $table->string('cancelled_by', 20)->nullable()->after('cancellation_reason');
             }
         });

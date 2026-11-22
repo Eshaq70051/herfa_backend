@@ -1,4 +1,4 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('title', 'المالية ووسائل الدفع')
 @section('page_title', 'العمليات المالية وطرق الدفع (Financial Transactions & Payment Methods)')
@@ -143,7 +143,7 @@
                                     {{ $trx->request->service->name ?? ('طلب #' . $trx->request_id) }}
                                 </td>
                                 <td class="p-4 font-mono font-bold text-gray-900">
-                                    {{ number_format($trx->amount, 2) }} ر.س
+                                    {{ number_format($trx->amount, 2) }} ر.ي
                                 </td>
                                 <td class="p-4">
                                     <div class="flex items-center gap-2">
@@ -333,7 +333,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">المبلغ (ر.س) *</label>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">المبلغ (ر.ي) *</label>
                         <input type="number" step="0.01" min="1" name="amount" required placeholder="150.00" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     </div>
                     <div>
@@ -373,7 +373,7 @@
                 <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
                 <span>معالجة المعاملة وتحديث سند الدفع</span>
             </h3>
-            <p class="text-xs text-gray-500 mb-4">رقم: <span class="font-mono font-bold text-emerald-700" x-text="selectedTransaction.number"></span> (المبلغ: <span class="font-bold text-gray-900" x-text="selectedTransaction.amount"></span> ر.س)</p>
+            <p class="text-xs text-gray-500 mb-4">رقم: <span class="font-mono font-bold text-emerald-700" x-text="selectedTransaction.number"></span> (المبلغ: <span class="font-bold text-gray-900" x-text="selectedTransaction.amount"></span> ر.ي)</p>
             <form :action="'{{ url('/admin/financials/payouts') }}/' + selectedTransaction.id + '/process'" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>

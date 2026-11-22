@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('services', 'pricing_type')) {
+        if (! Schema::hasColumn('services', 'pricing_type')) {
             Schema::table('services', function (Blueprint $table) {
                 $table->string('pricing_type', 30)->default('inspection')->after('base_price');
             });

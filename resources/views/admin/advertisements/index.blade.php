@@ -1,4 +1,4 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('title', 'العروض والإعلانات الترويجية')
 @section('page_title', 'إدارة العروض والبنرات الترويجية (Offers & Advertisements)')
@@ -391,7 +391,7 @@
                         <select name="service_id" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                             <option value="">اختر الخدمة...</option>
                             @foreach($services as $svc)
-                                <option value="{{ $svc->id }}">{{ $svc->name }} ({{ number_format($svc->base_price, 2) }} ر.س)</option>
+                                <option value="{{ $svc->id }}">{{ $svc->name }} ({{ number_format($svc->base_price, 2) }} ر.ي)</option>
                             @endforeach
                         </select>
                     </div>

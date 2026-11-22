@@ -6,7 +6,13 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        @fonts
+        <!-- Cairo Font (Local & Offline Ready) -->
+        <link rel="stylesheet" href="{{ asset('vendor/fonts/cairo/cairo.css') }}">
+        <!-- FontAwesome Icons (Local & Offline Ready) -->
+        <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
+        <style>
+            body { font-family: 'Cairo', system-ui, -apple-system, 'Segoe UI', Tahoma, Arial, sans-serif; }
+        </style>
 
         <!-- Styles / Scripts -->
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))

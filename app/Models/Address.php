@@ -12,7 +12,7 @@ class Address extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_addresses';
+    protected $table = 'addresses_user';
 
     protected $guarded = ['id'];
 
@@ -37,6 +37,11 @@ class Address extends Model
     public function district()
     {
         return $this->belongsTo(District::class);
+    }
+
+    public function neighborhood()
+    {
+        return $this->belongsTo(Neighborhood::class);
     }
 
     public function getTitleAttribute()

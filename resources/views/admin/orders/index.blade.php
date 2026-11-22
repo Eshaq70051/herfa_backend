@@ -29,8 +29,8 @@
 
         <div class="flex items-center gap-3 w-full md:w-auto">
             <!-- Search input -->
-            <form action="{{ route('admin.orders.index') }}" method="GET" class="w-full md:w-72 relative">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="بحث برقم الطلب، العميل..." class="w-full pr-10 pl-4 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition">
+            <form action="{{ route('admin.orders.index') }}" method="GET" class="w-full md:w-80 relative">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="بحث برقم الطلب (مثال: 6805)، العميل، الحرفي..." class="w-full pr-10 pl-4 py-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition">
                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
@@ -63,21 +63,38 @@
                     @forelse($orders as $order)
                     <tr class="hover:bg-gray-50/60 transition">
                         <td class="py-4 px-4">
-                            <a href="{{ route('admin.orders.show', $order->id) }}" class="font-bold text-emerald-700 hover:underline font-mono">
-                                {{ $order->request_number }}
+                            <a href="{{ route('admin.orders.show', $order->id) }}" class="inline-flex items-center gap-1.5 group" title="عرض تفاصيل الطلب كاملة">
+                                <span class="font-black font-mono text-sm px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 group-hover:bg-emerald-600 group-hover:text-white transition shadow-sm">
+                                    #{{ $order->clean_number }}
+                                </span>
+                                <span class="text-[11px] text-gray-400 font-mono hidden sm:inline group-hover:text-gray-600">
+                                    ({{ $order->request_number }})
+                                </span>
                             </a>
-                            <div class="text-[11px] text-gray-400 font-mono mt-0.5">
-                                {{ $order->created_at->format('Y-m-d H:i') }}
+                            <div class="text-[11px] text-gray-400 font-mono mt-1 flex items-center gap-1">
+                                <i class="fa-regular fa-clock text-[10px]"></i>
+                                <span>{{ $order->created_at->format('Y-m-d H:i') }}</span>
                             </div>
                         </td>
                         <td class="py-4 px-4">
-                            <span class="font-bold text-gray-900 block">{{ $order->service->name ?? 'خدمة عامة' }}</span>
-                            <span class="text-xs text-gray-400">{{ $order->service->category->name ?? 'صيانة' }}</span>
+                            <div class="flex items-center gap-2.5">
+                                @if($order->image || ($order->service && $order->service->image))
+                                    <img src="{{ asset($order->image ?? $order->service->image) }}" alt="طلب" class="w-8 h-8 rounded-lg object-cover border border-gray-200/60 flex-shrink-0 bg-white">
+                                @else
+                                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs flex-shrink-0">
+                                        <i class="fa-solid fa-wrench"></i>
+                                    </div>
+                                @endif
+                                <div>
+                                    <span class="font-bold text-gray-900 block">{{ $order->service->name ?? 'خدمة عامة' }}</span>
+                                    <span class="text-xs text-gray-400">{{ $order->service->category->name ?? 'صيانة' }}</span>
+                                </div>
+                            </div>
                         </td>
                         <td class="py-4 px-4 text-xs">
                             <div class="font-bold text-gray-800">{{ $order->customer->full_name ?? 'عميل غير مسجل' }}</div>
                             <div class="text-gray-400 font-mono">{{ $order->customer->phone ?? '' }}</div>
-                            <div class="text-[11px] text-gray-500 truncate max-w-xs">{{ $order->address_details ?? 'حي النرجس' }}</div>
+                            <div class="text-[11px] text-gray-500 truncate max-w-xs">{{ $order->address_details ?? 'شارع حدة، صنعاء' }}</div>
                         </td>
                         <td class="py-4 px-4 text-xs">
                             @php
@@ -106,20 +123,22 @@
                         </td>
                         <td class="py-4 px-4">
                             @php
-                                $stName = $order->status->name ?? 'pending';
+                                $stCode = strtolower($order->status->code ?? $order->status->name ?? 'pending');
                             @endphp
-                            @if($stName === 'completed')
+                            @if(in_array($stCode, ['completed', 'مكتمل']))
                                 <span class="px-2.5 py-1 text-xs font-bold rounded-lg border bg-emerald-50 text-emerald-700 border-emerald-200 inline-block">مكتمل</span>
-                            @elseif($stName === 'in_progress')
+                            @elseif(in_array($stCode, ['in_progress', 'قيد التنفيذ']))
                                 <span class="px-2.5 py-1 text-xs font-bold rounded-lg border bg-teal-50 text-teal-700 border-teal-200 inline-block">قيد التنفيذ</span>
-                            @elseif($stName === 'cancelled')
+                            @elseif(in_array($stCode, ['cancelled', 'ملغي']))
                                 <span class="px-2.5 py-1 text-xs font-bold rounded-lg border bg-red-50 text-red-700 border-red-200 inline-block">ملغي</span>
+                            @elseif(in_array($stCode, ['assigned', 'accepted', 'تم الإسناد', 'مقبول']))
+                                <span class="px-2.5 py-1 text-xs font-bold rounded-lg border bg-blue-50 text-blue-700 border-blue-200 inline-block">{{ $order->status->name ?? 'مسند' }}</span>
                             @else
                                 <span class="px-2.5 py-1 text-xs font-bold rounded-lg border bg-amber-50 text-amber-700 border-amber-200 inline-block">بانتظار فني</span>
                             @endif
                         </td>
                         <td class="py-4 px-4 font-mono font-bold text-gray-900">
-                            {{ number_format($order->service->base_price ?? 80, 2) }} ر.س
+                            {{ number_format($order->service->base_price ?? 80, 2) }} ر.ي
                         </td>
                         <td class="py-4 px-4 text-center">
                             <div class="inline-flex items-center gap-1.5">
@@ -186,7 +205,7 @@
                         @foreach($categories as $cat)
                             <optgroup label="{{ $cat->name }}">
                                 @foreach($cat->services as $svc)
-                                    <option value="{{ $svc->id }}">{{ $svc->name }} ({{ number_format($svc->base_price, 2) }} ر.س)</option>
+                                    <option value="{{ $svc->id }}">{{ $svc->name }} ({{ number_format($svc->base_price, 2) }} ر.ي)</option>
                                 @endforeach
                             </optgroup>
                         @endforeach
@@ -213,7 +232,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1">عنوان وتفاصيل الموقع</label>
-                    <input type="text" name="address_details" placeholder="مثال: الرياض - حي النرجس - فيلا 12" value="الرياض - حي النرجس" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" name="address_details" placeholder="مثال: صنعاء - شارع حدة - عمارة 12" value="صنعاء - شارع حدة" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-primary-500 outline-none">
                 </div>
 
                 <div>

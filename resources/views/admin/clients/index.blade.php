@@ -1,4 +1,4 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('title', 'إدارة العملاء المسجلين')
 @section('page_title', 'سجل عملاء منصة حِرفة (Clients & Customers)')
@@ -47,28 +47,36 @@
                     @forelse($clients as $client)
                     <tr class="hover:bg-gray-50/60 transition">
                         <td class="py-4 px-4 font-bold text-gray-900">
-                            <div class="flex items-center gap-2">
+                            <a href="{{ route('admin.clients.show', $client->id) }}" class="flex items-center gap-2 group hover:text-emerald-600 transition">
                                 @if($client->profile_image)
-                                    <img src="{{ str_starts_with($client->profile_image, 'http') ? $client->profile_image : url($client->profile_image) }}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shadow-sm">
+                                    <img src="{{ str_starts_with($client->profile_image, 'http') ? $client->profile_image : url($client->profile_image) }}" class="w-8 h-8 rounded-full object-cover border border-gray-200 shadow-sm group-hover:border-emerald-500 transition">
                                 @else
-                                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs border border-blue-100">
+                                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs border border-blue-100 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition">
                                         {{ mb_substr($client->full_name, 0, 1) }}
                                     </div>
                                 @endif
-                                <span>{{ $client->full_name }}</span>
-                            </div>
+                                <div>
+                                    <span class="group-hover:underline">{{ $client->full_name }}</span>
+                                    <div class="text-[11px] text-gray-400 font-mono font-normal">#{{ $client->id }}</div>
+                                </div>
+                            </a>
                         </td>
                         <td class="py-4 px-4 font-mono text-xs text-gray-600">
-                            {{ $client->phone }}
+                            <a href="{{ route('admin.clients.show', $client->id) }}" class="hover:text-emerald-600 transition">
+                                {{ $client->phone }}
+                            </a>
                         </td>
                         <td class="py-4 px-4 text-xs text-gray-500">
                             {{ $client->email ?? 'لا يوجد' }}
                         </td>
                         <td class="py-4 px-4 font-bold text-emerald-600">
-                            {{ $client->service_requests_count }} طلب
+                            <a href="{{ route('admin.clients.show', $client->id) }}#orders" class="hover:underline inline-flex items-center gap-1">
+                                <span>{{ $client->service_requests_count }} طلب</span>
+                                <i class="fa-solid fa-angle-left text-[10px] text-emerald-400"></i>
+                            </a>
                         </td>
                         <td class="py-4 px-4 font-mono font-bold text-gray-900">
-                            {{ number_format($client->wallet_balance, 2) }} ر.س
+                            {{ number_format($client->wallet_balance, 2) }} ر.ي
                         </td>
                         <td class="py-4 px-4">
                             @if($client->account_status === 'active')
@@ -83,6 +91,10 @@
                         </td>
                         <td class="py-4 px-4 text-center">
                             <div class="inline-flex items-center gap-1.5">
+                                <a href="{{ route('admin.clients.show', $client->id) }}" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="عرض تفاصيل العميل والطلبات">
+                                    <i class="fa-solid fa-eye text-xs"></i>
+                                </a>
+
                                 <button type="button" @click="editModalOpen = true; editData = {
                                     id: '{{ $client->id }}',
                                     full_name: '{{ addslashes($client->full_name) }}',
@@ -158,7 +170,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">رصيد المحفظة الافتتاحي (ر.س)</label>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">رصيد المحفظة الافتتاحي (ر.ي)</label>
                     <input type="number" step="0.5" name="wallet_balance" value="0.00" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 
@@ -204,7 +216,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">رصيد المحفظة (ر.س)</label>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">رصيد المحفظة (ر.ي)</label>
                     <input type="number" step="0.5" name="wallet_balance" x-model="editData.wallet_balance" class="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-mono focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 

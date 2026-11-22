@@ -3,33 +3,38 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Review;
 use App\Models\AppSetting;
-use App\Models\Transaction;
+use App\Models\Currency;
+use App\Models\Notification;
 use App\Models\PaymentMethod;
-use App\Models\SupportTicket;
+use App\Models\Review;
+use App\Models\ServiceRequest;
 use App\Models\SupportMessage;
-use App\Models\AdminActivityLog;
+use App\Models\SupportTicket;
+use App\Models\Transaction;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class AdminFinancialController extends Controller
 {
     // ==================== العملاء (Customers / Clients CRUD) ====================
     public function clients(Request $request)
     {
-        $query = User::whereIn('role', ['customer', 'client'])->withCount('serviceRequests');
+        $query = User::clientAccounts()->withCount('serviceRequests');
 
-        if ($request->has('search') && !empty($request->search)) {
+        if ($request->has('search') && ! empty($request->search)) {
             $s = $request->search;
-            $query->where(function ($q) use ($s) {
+            $sHash = hash('sha256', $s);
+            $query->where(function ($q) use ($s, $sHash) {
                 $q->where('full_name', 'like', "%{$s}%")
-                  ->orWhere('phone', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%");
+                    ->orWhere('phone_encrypted', 'like', "%{$s}%")
+                    ->orWhere('phone_hash', $sHash)
+                    ->orWhere('email_encrypted', 'like', "%{$s}%");
             });
         }
 
         $clients = $query->latest()->paginate(15);
+
         return view('admin.clients.index', compact('clients'));
     }
 
@@ -37,29 +42,31 @@ class AdminFinancialController extends Controller
     {
         $validated = $request->validate([
             'full_name' => 'required|string|max:150',
-            'phone' => 'required|string|unique:users,phone|max:20',
+            'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:150',
             'password' => 'required|min:6',
-            'wallet_balance' => 'nullable|numeric|min:0',
             'profile_image' => 'nullable|image|max:5120',
         ]);
+
+        $phoneHash = hash('sha256', $validated['phone']);
+        if (User::where('phone_hash', $phoneHash)->exists()) {
+            return back()->withErrors(['phone' => 'رقم الهاتف مسجل مسبقاً لمستخدم آخر'])->withInput();
+        }
 
         $profileImagePath = null;
         if ($request->hasFile('profile_image')) {
             $path = $request->file('profile_image')->store('profiles', 'public');
-            $profileImagePath = '/storage/' . $path;
+            $profileImagePath = '/storage/'.$path;
         }
 
         $user = User::create([
             'full_name' => $validated['full_name'],
             'phone' => $validated['phone'],
-            'email' => $validated['email'],
+            'email' => $validated['email'] ?? null,
             'password' => $validated['password'],
             'role' => 'customer',
             'account_status' => 'active',
-            'current_mode' => 'customer',
             'profile_image' => $profileImagePath,
-            'wallet_balance' => $validated['wallet_balance'] ?? 0.00,
             'phone_verified_at' => now(),
         ]);
 
@@ -72,29 +79,88 @@ class AdminFinancialController extends Controller
 
         $validated = $request->validate([
             'full_name' => 'required|string|max:150',
-            'phone' => 'required|string|max:20|unique:users,phone,' . $client->id,
+            'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:150',
-            'wallet_balance' => 'nullable|numeric|min:0',
             'account_status' => 'required|in:active,inactive,suspended',
             'profile_image' => 'nullable|image|max:5120',
         ]);
 
+        $phoneHash = hash('sha256', $validated['phone']);
+        if (User::where('phone_hash', $phoneHash)->where('id', '!=', $client->id)->exists()) {
+            return back()->withErrors(['phone' => 'رقم الهاتف مسجل مسبقاً لمستخدم آخر'])->withInput();
+        }
+
         $data = [
             'full_name' => $validated['full_name'],
             'phone' => $validated['phone'],
-            'email' => $validated['email'],
-            'wallet_balance' => $validated['wallet_balance'] ?? $client->wallet_balance,
+            'email' => $validated['email'] ?? null,
             'account_status' => $validated['account_status'],
         ];
 
         if ($request->hasFile('profile_image')) {
             $path = $request->file('profile_image')->store('profiles', 'public');
-            $data['profile_image'] = '/storage/' . $path;
+            $data['profile_image'] = '/storage/'.$path;
         }
 
         $client->update($data);
 
         return back()->with('success', 'تم تحديث بيانات العميل بنجاح');
+    }
+
+    public function showClient($id)
+    {
+        $client = User::with([
+            'addresses.district.governorate',
+            'serviceRequests' => function ($q) {
+                $q->with([
+                    'service.category',
+                    'status',
+                    'assignments.craftsman',
+                ])->latest();
+            },
+            'reviewsGiven.craftsman',
+            'transactions' => function ($q) {
+                $q->with(['paymentMethod', 'request.service'])->latest();
+            },
+            'supportTickets' => function ($q) {
+                $q->latest();
+            },
+        ])
+            ->withCount([
+                'serviceRequests',
+                'addresses',
+                'reviewsGiven',
+                'transactions',
+            ])
+            ->findOrFail($id);
+
+        $totalOrders = $client->service_requests_count;
+        $completedOrders = $client->serviceRequests->where('status.code', 'completed')->count();
+        $inProgressOrders = $client->serviceRequests->filter(function ($req) {
+            return in_array($req->status?->code, ['in_progress', 'assigned', 'accepted', 'on_the_way', 'arrived']);
+        })->count();
+        $cancelledOrders = $client->serviceRequests->where('status.code', 'cancelled')->count();
+        $totalSpent = $client->serviceRequests->whereIn('status.code', ['completed', 'paid'])->sum('total_amount');
+
+        return view('admin.clients.show', compact(
+            'client',
+            'totalOrders',
+            'completedOrders',
+            'inProgressOrders',
+            'cancelledOrders',
+            'totalSpent'
+        ));
+    }
+
+    public function toggleBlockClient($id)
+    {
+        $client = User::findOrFail($id);
+        $client->account_status = ($client->account_status === 'active') ? 'suspended' : 'active';
+        $client->save();
+
+        $msg = ($client->account_status === 'active') ? 'تم تفعيل حساب العميل بنجاح' : 'تم تعطيل/حظر حساب العميل';
+
+        return back()->with('success', $msg);
     }
 
     public function destroyClient($id)
@@ -114,7 +180,7 @@ class AdminFinancialController extends Controller
             ->paginate(15);
 
         $paymentMethods = PaymentMethod::all();
-        $serviceRequests = \App\Models\ServiceRequest::with(['customer', 'service'])->latest()->take(50)->get();
+        $serviceRequests = ServiceRequest::with(['customer', 'service'])->latest()->take(50)->get();
         $users = User::all();
 
         return view('admin.financials.payouts', compact('transactions', 'paymentMethods', 'serviceRequests', 'users'));
@@ -132,7 +198,7 @@ class AdminFinancialController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('payment_methods', 'public');
-            $imagePath = '/storage/' . $path;
+            $imagePath = '/storage/'.$path;
         }
 
         PaymentMethod::create([
@@ -163,7 +229,7 @@ class AdminFinancialController extends Controller
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('payment_methods', 'public');
-            $data['image'] = '/storage/' . $path;
+            $data['image'] = '/storage/'.$path;
         }
 
         $method->update($data);
@@ -188,28 +254,22 @@ class AdminFinancialController extends Controller
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:1',
             'payment_status' => 'required|in:pending,paid,failed,refunded',
-            'receipt_image' => 'nullable|image|max:5120',
         ]);
 
-        $receiptPath = null;
-        if ($request->hasFile('receipt_image')) {
-            $path = $request->file('receipt_image')->store('receipts', 'public');
-            $receiptPath = '/storage/' . $path;
-        }
+        $defaultCurrency = Currency::where('is_default', true)->first() ?? Currency::first();
 
         Transaction::create([
-            'transaction_number' => 'TRX-' . strtoupper(uniqid()),
+            'transaction_number' => 'TRX-'.strtoupper(uniqid()),
             'request_id' => $validated['request_id'],
             'user_id' => $validated['user_id'],
             'payment_method_id' => $validated['payment_method_id'],
             'amount' => $validated['amount'],
-            'currency' => 'SAR',
+            'currency_id' => $defaultCurrency?->id ?? 1,
             'payment_status' => $validated['payment_status'],
-            'receipt_image' => $receiptPath,
             'paid_at' => $validated['payment_status'] === 'paid' ? now() : null,
         ]);
 
-        return back()->with('success', 'تم تسجيل المعاملة المالية وإرفاق السند بنجاح');
+        return back()->with('success', 'تم تسجيل المعاملة المالية بنجاح');
     }
 
     public function processPayout(Request $request, $id)
@@ -217,22 +277,16 @@ class AdminFinancialController extends Controller
         $transaction = Transaction::findOrFail($id);
         $validated = $request->validate([
             'payment_status' => 'required|in:pending,paid,failed,refunded',
-            'receipt_image' => 'nullable|image|max:5120',
         ]);
 
         $transaction->payment_status = $validated['payment_status'];
-        if ($validated['payment_status'] === 'paid' && !$transaction->paid_at) {
+        if ($validated['payment_status'] === 'paid' && ! $transaction->paid_at) {
             $transaction->paid_at = now();
-        }
-
-        if ($request->hasFile('receipt_image')) {
-            $path = $request->file('receipt_image')->store('receipts', 'public');
-            $transaction->receipt_image = '/storage/' . $path;
         }
 
         $transaction->save();
 
-        return back()->with('success', 'تم تحديث حالة المعاملة المالية وسند السداد بنجاح');
+        return back()->with('success', 'تم تحديث حالة المعاملة المالية بنجاح');
     }
 
     public function destroyTransaction($id)
@@ -291,11 +345,11 @@ class AdminFinancialController extends Controller
             'user_id' => 'required|exists:users,id',
             'subject' => 'required|string|max:150',
             'description' => 'required|string',
-            'priority' => 'required|in:low,medium,high,urgent',
+            'priority' => 'required|in:low,medium,high',
         ]);
 
         $ticket = SupportTicket::create([
-            'ticket_number' => 'TCK-' . date('Ymd') . '-' . rand(100, 999),
+            'ticket_number' => 'TCK-'.date('Ymd').'-'.rand(100, 999),
             'user_id' => $validated['user_id'],
             'subject' => $validated['subject'],
             'description' => $validated['description'],
@@ -304,7 +358,7 @@ class AdminFinancialController extends Controller
             'assigned_admin_id' => auth()->id(),
         ]);
 
-        return back()->with('success', 'تم فتح تذكرة الدعم بنجاح برقم: ' . $ticket->ticket_number);
+        return back()->with('success', 'تم فتح تذكرة الدعم بنجاح برقم: '.$ticket->ticket_number);
     }
 
     public function showTicket($id)
@@ -332,21 +386,22 @@ class AdminFinancialController extends Controller
         $ticket->update([
             'ticket_status' => $validated['ticket_status'],
             'assigned_admin_id' => auth()->id(),
+            'last_message_at' => now(),
         ]);
 
-        // إرسال إشعار فوري للعميل في التطبيق بالرد الجديد
         try {
-            \App\Models\Notification::create([
+            Notification::create([
                 'user_id' => $ticket->user_id,
-                'title' => 'رد جديد على تذكرة الدعم: ' . $ticket->ticket_number,
+                'title' => 'رد جديد على تذكرة الدعم: '.$ticket->ticket_number,
                 'body' => $validated['message'],
                 'related_id' => $ticket->id,
                 'is_read' => false,
                 'created_at' => now(),
             ]);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
-        return back()->with('success', 'تم إرسال الرد وتحديث حالة التذكرة بنجاح، وتم إشعار العميل في التطبيق ✓');
+        return back()->with('success', 'تم إرسال الرد وتحديث حالة التذكرة بنجاح');
     }
 
     public function destroyTicket($id)
@@ -362,12 +417,12 @@ class AdminFinancialController extends Controller
     {
         $settingsList = AppSetting::all();
         $settings = $settingsList->pluck('setting_value', 'setting_key');
+
         return view('admin.settings.index', compact('settings', 'settingsList'));
     }
 
     public function updateSettings(Request $request)
     {
-        // 1. Handle uploaded image files
         $fileKeys = [
             'site_logo',
             'site_logo_dark',
@@ -383,19 +438,18 @@ class AdminFinancialController extends Controller
                 AppSetting::updateOrCreate(
                     ['setting_key' => $fileKey],
                     [
-                        'setting_value' => '/storage/' . $path,
+                        'setting_value' => '/storage/'.$path,
                         'setting_group' => 'branding',
                         'description' => 'ملف صورة أو وسائط للمنصة',
-                        'updated_by' => auth()->id()
+                        'updated_by' => auth()->id(),
                     ]
                 );
             }
         }
 
-        // 2. Handle all other input fields
         $input = $request->except(array_merge(['_token'], $fileKeys));
 
-        if ($request->has('is_settings_form') && !$request->has('maintenance_mode')) {
+        if ($request->has('is_settings_form') && ! $request->has('maintenance_mode')) {
             $input['maintenance_mode'] = '0';
         }
 
@@ -414,9 +468,9 @@ class AdminFinancialController extends Controller
             AppSetting::updateOrCreate(
                 ['setting_key' => $key],
                 [
-                    'setting_value' => $val,
+                    'setting_value' => (string) $val,
                     'setting_group' => $group,
-                    'updated_by' => auth()->id()
+                    'updated_by' => auth()->id(),
                 ]
             );
         }
@@ -450,5 +504,56 @@ class AdminFinancialController extends Controller
         $setting->delete();
 
         return back()->with('success', 'تم حذف الإعداد بنجاح');
+    }
+
+    // ==================== عمليات مدمجة لتوافق الروابط ====================
+    public function disputes(Request $request)
+    {
+        return redirect()->route('admin.tickets.index')->with('info', 'تم دمج النزاعات ضمن تذاكر الدعم الفني والشكاوى.');
+    }
+
+    public function resolveDispute(Request $request, $id)
+    {
+        return redirect()->route('admin.tickets.index');
+    }
+
+    public function payoutRequests(Request $request)
+    {
+        return redirect()->route('admin.accounting.payouts')->with('info', 'تم نقل طلبات السحب إلى الإدارة المالية ومستحقات الحرفيين.');
+    }
+
+    public function approvePayout(Request $request, $id)
+    {
+        return redirect()->route('admin.accounting.payouts');
+    }
+
+    public function rejectPayout(Request $request, $id)
+    {
+        return redirect()->route('admin.accounting.payouts');
+    }
+
+    public function coupons(Request $request)
+    {
+        return redirect()->route('admin.advertisements.index')->with('info', 'تم استبدال الكوبونات بنظام العروض والخصومات التسويقية.');
+    }
+
+    public function storeCoupon(Request $request)
+    {
+        return redirect()->route('admin.advertisements.index');
+    }
+
+    public function updateCoupon(Request $request, $id)
+    {
+        return redirect()->route('admin.advertisements.index');
+    }
+
+    public function toggleCoupon($id)
+    {
+        return redirect()->route('admin.advertisements.index');
+    }
+
+    public function destroyCoupon($id)
+    {
+        return redirect()->route('admin.advertisements.index');
     }
 }

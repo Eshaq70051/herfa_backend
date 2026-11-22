@@ -2,34 +2,33 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\CraftsmanProfile;
-use App\Models\UserAddress;
-use App\Models\Governorate;
-use App\Models\District;
-use App\Models\Neighborhood;
-use App\Models\Category;
-use App\Models\Service;
-use App\Models\CraftsmanSpecialty;
-use App\Models\CraftsmanService;
-use App\Models\RequestStatus;
-use App\Models\CancellationReason;
-use App\Models\ServiceRequest;
-use App\Models\RequestDetail;
-use App\Models\RequestAssignment;
-use App\Models\RequestStatusHistory;
-use App\Models\Review;
-use App\Models\Offer;
-use App\Models\PaymentMethod;
-use App\Models\NotificationType;
 use App\Models\AdvertisementPosition;
-use App\Models\AppSetting;
-use App\Models\SupportTicket;
-use App\Models\SupportMessage;
 use App\Models\AiConversation;
 use App\Models\AiMessage;
+use App\Models\AppSetting;
+use App\Models\CancellationReason;
+use App\Models\Category;
+use App\Models\CraftsmanProfile;
+use App\Models\CraftsmanService;
+use App\Models\CraftsmanSpecialty;
+use App\Models\District;
+use App\Models\Governorate;
+use App\Models\Neighborhood;
+use App\Models\NotificationType;
+use App\Models\Offer;
+use App\Models\PaymentMethod;
+use App\Models\RequestAssignment;
+use App\Models\RequestDetail;
+use App\Models\RequestStatus;
+use App\Models\RequestStatusHistory;
+use App\Models\Review;
+use App\Models\Service;
+use App\Models\ServiceRequest;
+use App\Models\SupportMessage;
+use App\Models\SupportTicket;
+use App\Models\User;
+use App\Models\UserAddress;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -275,6 +274,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'كشف تسربات المياه وفحص الشبكة',
             'description' => 'فحص بأحدث الأجهزة الإلكترونية لتحديد مكان التسريب بدقة مع تقرير فني معتمد.',
             'base_price' => 75.00,
+            'image' => '/storage/categories/plumbing.svg',
+            'icon' => 'fa-faucet-drip',
             'warranty_days' => 30,
             'is_active' => true,
         ]);
@@ -284,6 +285,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'تركيب أو صيانة السخانات والخلاطات',
             'description' => 'إصلاح تسريب المياه من السخان، تغيير قلب الخلاط، وتركيب مضخات الضغط.',
             'base_price' => 50.00,
+            'image' => '/storage/categories/plumbing.svg',
+            'icon' => 'fa-faucet-drip',
             'warranty_days' => 30,
             'is_active' => true,
         ]);
@@ -293,6 +296,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'غسيل وتنظيف مكيف سبليت عميق',
             'description' => 'تنظيف الوحدة الداخلية والخارجية بغطاء واقي، مع تسليك مجرى الصرف وفحص الفريون.',
             'base_price' => 65.00,
+            'image' => '/storage/categories/ac.svg',
+            'icon' => 'fa-snowflake',
             'warranty_days' => 30,
             'is_active' => true,
         ]);
@@ -302,6 +307,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'شحن فريون ومعالجة تسريب المكيف',
             'description' => 'لحام مواسير النحاس واختبار الضغط وشحن فريون أصلي أمريكي.',
             'base_price' => 120.00,
+            'image' => '/storage/categories/ac.svg',
+            'icon' => 'fa-snowflake',
             'warranty_days' => 45,
             'is_active' => true,
         ]);
@@ -311,6 +318,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'إصلاح التماس كهربائي وانقطاع القواطع',
             'description' => 'فحص القواطع الرئيسية والفرعية ومعالجة التماس الأسلاك لضمان السلامة.',
             'base_price' => 60.00,
+            'image' => '/storage/categories/electricity.svg',
+            'icon' => 'fa-bolt',
             'warranty_days' => 30,
             'is_active' => true,
         ]);
@@ -321,6 +330,8 @@ class DatabaseSeeder extends Seeder
             'description' => 'تشخيص الأعطال، استبدال القطع التالفة، فحص طرمبة التصريف والكمبروسر.',
             'base_price' => 70.00,
             'pricing_type' => 'inspection',
+            'image' => '/storage/categories/appliances.svg',
+            'icon' => 'fa-blender-phone',
             'warranty_days' => 30,
             'is_active' => true,
         ]);
@@ -334,7 +345,7 @@ class DatabaseSeeder extends Seeder
 
         // 12. طلبات الخدمة التجريبية (service_requests)
         $req1 = ServiceRequest::create([
-            'request_number' => 'HRF-' . date('Ymd') . '-001',
+            'request_number' => 'HRF-'.date('Ymd').'-001',
             'customer_id' => $customer->id,
             'service_id' => $s3->id,
             'description' => 'المكيف في الصالة الرئيسية يخرج هواء حار مع صوت غير طبيعي، ويحتاج تنظيف وشحن فريون.',
@@ -370,7 +381,7 @@ class DatabaseSeeder extends Seeder
 
         // طلب مكتمل سابق مع تقييم
         $req2 = ServiceRequest::create([
-            'request_number' => 'HRF-' . date('Ymd') . '-002',
+            'request_number' => 'HRF-'.date('Ymd').'-002',
             'customer_id' => $customer->id,
             'service_id' => $s1->id,
             'description' => 'تسريب مياه تحت حوض المطبخ يحتاج تغيير صمام وسيليكون.',
@@ -445,6 +456,9 @@ class DatabaseSeeder extends Seeder
             'message_content' => 'مرحباً بك! تقطير الماء من الوحدة الداخلية سببه الشائع هو انسداد مجرى خرطوم التصريف بالأتربة، أو اتساخ حوض المكيف. ننصحك بحجز خدمة "غسيل وتنظيف مكيف سبليت عميق" وسيقوم الفني بتسليك المجرى وتنظيف الحوض بالكامل مع ضمان 30 يوماً.',
         ]);
 
-        $this->call(ServiceCatalogSeeder::class);
+        $this->call([
+            ServiceCatalogSeeder::class,
+            AdminPermissionSeeder::class,
+        ]);
     }
 }

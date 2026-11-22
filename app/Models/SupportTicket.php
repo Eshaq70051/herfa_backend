@@ -14,6 +14,21 @@ class SupportTicket extends Model
 
     protected $guarded = ['id'];
 
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        $img = $this->attributes['image'] ?? null;
+        if (empty($img)) {
+            return null;
+        }
+        if (str_starts_with($img, 'http')) {
+            return $img;
+        }
+
+        return asset($img);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

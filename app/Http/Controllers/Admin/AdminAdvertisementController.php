@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Advertisement;
 use App\Models\AdvertisementImage;
 use App\Models\Offer;
 use App\Models\OfferImage;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class AdminAdvertisementController extends Controller
 {
@@ -18,7 +18,7 @@ class AdminAdvertisementController extends Controller
         $advertisements = Advertisement::with(['creator', 'images'])->latest()->paginate(10);
         $offers = Offer::with(['craftsman', 'service', 'images'])->latest()->paginate(10);
         $services = Service::where('is_active', true)->get();
-        $craftsmen = User::where('role', 'craftsman')->get();
+        $craftsmen = User::craftsmen()->get();
 
         return view('admin.advertisements.index', compact('advertisements', 'offers', 'services', 'craftsmen'));
     }
@@ -39,7 +39,7 @@ class AdminAdvertisementController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('advertisements', 'public');
-            $imagePath = '/storage/' . $path;
+            $imagePath = '/storage/'.$path;
         }
 
         $ad = Advertisement::create([
@@ -47,7 +47,6 @@ class AdminAdvertisementController extends Controller
             'advertiser_name' => $validated['advertiser_name'] ?? 'منصة حِرفة',
             'description' => $validated['description'] ?? null,
             'target_url' => $validated['target_url'] ?? null,
-            'image' => $imagePath,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
             'status' => $validated['status'],
@@ -79,7 +78,7 @@ class AdminAdvertisementController extends Controller
             'image' => 'nullable|image|max:5120',
         ]);
 
-        $data = [
+        $ad->update([
             'title' => $validated['title'],
             'advertiser_name' => $validated['advertiser_name'] ?? $ad->advertiser_name,
             'description' => $validated['description'] ?? $ad->description,
@@ -87,19 +86,17 @@ class AdminAdvertisementController extends Controller
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
             'status' => $validated['status'],
-        ];
+        ]);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('advertisements', 'public');
-            $data['image'] = '/storage/' . $path;
+            $imagePath = '/storage/'.$path;
 
             AdvertisementImage::create([
                 'advertisement_id' => $ad->id,
-                'image_path' => $data['image'],
+                'image_path' => $imagePath,
             ]);
         }
-
-        $ad->update($data);
 
         return back()->with('success', 'تم تحديث بيانات الإعلان بنجاح');
     }
@@ -130,16 +127,15 @@ class AdminAdvertisementController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('offers', 'public');
-            $imagePath = '/storage/' . $path;
+            $imagePath = '/storage/'.$path;
         }
 
         $offer = Offer::create([
             'title' => $validated['title'],
             'service_id' => $validated['service_id'],
-            'craftsman_id' => $validated['craftsman_id'] ?? null,
+            'created_by' => $validated['craftsman_id'] ?? auth()->id() ?? 1,
             'discount_percentage' => $validated['discount_percentage'],
             'description' => $validated['description'] ?? null,
-            'image' => $imagePath,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
             'offer_status' => $validated['offer_status'],
@@ -174,7 +170,7 @@ class AdminAdvertisementController extends Controller
         $data = [
             'title' => $validated['title'],
             'service_id' => $validated['service_id'],
-            'craftsman_id' => $validated['craftsman_id'] ?? null,
+            'created_by' => $validated['craftsman_id'] ?? $offer->created_by,
             'discount_percentage' => $validated['discount_percentage'],
             'description' => $validated['description'] ?? $offer->description,
             'start_date' => $validated['start_date'],
@@ -182,17 +178,17 @@ class AdminAdvertisementController extends Controller
             'offer_status' => $validated['offer_status'],
         ];
 
+        $offer->update($data);
+
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('offers', 'public');
-            $data['image'] = '/storage/' . $path;
+            $imagePath = '/storage/'.$path;
 
             OfferImage::create([
                 'offer_id' => $offer->id,
-                'image_path' => $data['image'],
+                'image_path' => $imagePath,
             ]);
         }
-
-        $offer->update($data);
 
         return back()->with('success', 'تم تحديث بيانات العرض بنجاح');
     }

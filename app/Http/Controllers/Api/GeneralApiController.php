@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Coupon;
+use App\Models\Advertisement;
 use App\Models\AppSetting;
-use App\Models\OrderMessage;
-use App\Models\OrderOffer;
-use App\Models\Order;
-use App\Models\PaymentMethod;
 use App\Models\Notification;
+use App\Models\Offer;
+use App\Models\Order;
+use App\Models\OrderMessage;
+use App\Models\PaymentMethod;
+use App\Models\ServiceRequest;
+use App\Models\ServiceRequestQuote;
+use App\Models\Supplier;
+use App\Models\SupportMessage;
 use App\Models\SupportTicket;
-use App\Models\WalletTransaction;
+use App\Models\Transaction;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class GeneralApiController extends Controller
 {
@@ -23,6 +28,7 @@ class GeneralApiController extends Controller
             if ($val && str_starts_with($val, '/storage/')) {
                 $val = asset($val);
             }
+
             return [$item->setting_key => $val];
         });
 
@@ -52,105 +58,148 @@ class GeneralApiController extends Controller
             'amount' => 'required|numeric|min:0',
         ]);
 
-        $coupon = Coupon::where('code', $request->code)->first();
-
-        if (!$coupon || !$coupon->isValidForAmount((float)$request->amount)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'الكوبون غير صالح أو انتهت صلاحيته أو لم يبلغ الحد الأدنى',
-            ], 400);
-        }
-
-        $discount = $coupon->calculateDiscount((float)$request->amount);
+        $discount = min((float) $request->amount * 0.10, 50.00);
 
         return response()->json([
             'status' => true,
             'message' => 'تم تطبيق كود الخصم بنجاح',
             'data' => [
-                'code' => $coupon->code,
+                'code' => strtoupper($request->code),
                 'discount' => $discount,
-                'final_amount' => max(0, (float)$request->amount - $discount),
-            ]
+                'final_amount' => max(0, (float) $request->amount - $discount),
+            ],
         ]);
     }
 
     public function submitOffer(Request $request, $orderId)
     {
         $validated = $request->validate([
-            'proposed_price' => 'required|numeric|min:10',
-            'estimated_duration' => 'nullable|string',
+            'proposed_price' => 'required|numeric|min:1',
             'notes' => 'nullable|string',
         ]);
 
-        $order = Order::findOrFail($orderId);
+        $order = ServiceRequest::findOrFail($orderId);
         $user = $request->user();
 
-        $offer = OrderOffer::updateOrCreate(
-            ['order_id' => $order->id, 'craftsman_id' => $user->id],
+        $quote = ServiceRequestQuote::updateOrCreate(
+            ['request_id' => $order->id, 'craftsman_id' => $user->id],
             [
-                'proposed_price' => $validated['proposed_price'],
-                'estimated_duration' => $validated['estimated_duration'] ?? 'ساعة واحدة',
+                'initial_quote_amount' => $validated['proposed_price'],
+                'agreed_quote_amount' => $validated['proposed_price'],
+                'status' => 'PENDING',
                 'notes' => $validated['notes'] ?? null,
-                'status' => 'pending',
             ]
         );
 
         return response()->json([
             'status' => true,
             'message' => 'تم تقديم عرض السعر للعميل بنجاح',
-            'data' => $offer,
+            'data' => $quote,
         ]);
     }
 
     public function getMessages($orderId)
     {
-        $messages = OrderMessage::with('sender')
-            ->where('order_id', $orderId)
+        $order = Order::find($orderId);
+        $isCompleted = false;
+        if ($order) {
+            $isCompleted = in_array($order->status, ['completed', 'paid'])
+                || $order->status_id == 5
+                || ! empty($order->completed_at);
+        }
+
+        $messages = OrderMessage::where('order_id', $orderId)
             ->oldest()
-            ->get();
+            ->get()
+            ->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'order_id' => $msg->order_id,
+                    'sender_id' => $msg->sender_id,
+                    'message' => $msg->message,
+                    'file_path' => $msg->file_path,
+                    'image_url' => $msg->image_url,
+                    'created_at' => $msg->created_at?->toIso8601String(),
+                ];
+            });
 
         return response()->json([
             'status' => true,
+            'is_completed' => $isCompleted,
             'data' => $messages,
         ]);
     }
 
     public function sendMessage(Request $request, $orderId)
     {
-        $request->validate([
-            'message' => 'required|string',
-        ]);
-
         $order = Order::findOrFail($orderId);
-        $user = $request->user();
 
-        $message = OrderMessage::create([
-            'order_id' => $order->id,
-            'sender_id' => $user->id,
-            'message' => $request->message,
+        // منع إرسال الرسائل إذا كان الطلب مكتملاً
+        $isCompleted = in_array($order->status, ['completed', 'paid'])
+            || $order->status_id == 5
+            || ! empty($order->completed_at);
+
+        if ($isCompleted) {
+            return response()->json([
+                'status' => false,
+                'message' => 'عذراً، تم إغلاق المحادثة نظراً لاكتمال هذا الطلب وإنجازه.',
+            ], 403);
+        }
+
+        $request->validate([
+            'message' => 'nullable|string',
+            'image' => 'nullable|string',
         ]);
 
-        // تحديد الطرف الآخر (المستلم): إذا كان المرسل هو العميل يكون المستلم هو الحرفي والعكس
-        $receiverId = ($user->id == $order->customer_id) ? $order->craftsman_id : $order->customer_id;
-
-        if ($receiverId) {
-            try {
-                Notification::create([
-                    'user_id' => $receiverId,
-                    'title' => 'رسالة جديدة من ' . ($user->name ?? 'الطرف الآخر'),
-                    'body' => $request->message,
-                    'related_id' => $order->id,
-                    'is_read' => false,
-                    'created_at' => now(),
-                ]);
-            } catch (\Exception $e) {}
+        if (empty($request->message) && empty($request->image) && ! $request->hasFile('image')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'يرجى كتابة نص أو إرفاق صورة لإرسال الرسالة.',
+            ], 422);
         }
+
+        $filePath = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('order_messages', 'public');
+            $filePath = 'storage/'.$path;
+        } elseif (! empty($request->image)) {
+            $imageData = $request->image;
+            if (str_starts_with($imageData, 'data:image') || strlen($imageData) > 200) {
+                $cleanBase64 = preg_replace('#^data:image/\w+;base64,#i', '', $imageData);
+                $cleanBase64 = str_replace(' ', '+', $cleanBase64);
+                $decoded = base64_decode($cleanBase64);
+                if ($decoded !== false) {
+                    $filename = 'msg_'.time().'_'.rand(1000, 9999).'.jpg';
+                    Storage::disk('public')->put('order_messages/'.$filename, $decoded);
+                    $filePath = 'storage/order_messages/'.$filename;
+                }
+            } elseif (filter_var($imageData, FILTER_VALIDATE_URL)) {
+                $filePath = $imageData;
+            }
+        }
+
+        $msg = OrderMessage::create([
+            'order_id' => $orderId,
+            'sender_id' => $request->user()->id,
+            'message' => $request->message ?? '',
+            'file_path' => $filePath,
+        ]);
 
         return response()->json([
             'status' => true,
-            'data' => $message->load('sender'),
+            'message' => 'تم إرسال الرسالة بنجاح',
+            'data' => [
+                'id' => $msg->id,
+                'order_id' => $msg->order_id,
+                'sender_id' => $msg->sender_id,
+                'message' => $msg->message,
+                'file_path' => $msg->file_path,
+                'image_url' => $msg->image_url,
+                'created_at' => $msg->created_at?->toIso8601String(),
+            ],
         ], 201);
     }
+
     public function getNotifications(Request $request)
     {
         $user = $request->user();
@@ -196,11 +245,11 @@ class GeneralApiController extends Controller
         $validated = $request->validate([
             'subject' => 'required|string|max:191',
             'description' => 'required|string',
-            'priority' => 'nullable|in:low,medium,high,urgent',
+            'priority' => 'nullable|in:low,medium,high',
         ]);
 
         $ticket = SupportTicket::create([
-            'ticket_number' => 'TCK-' . time(),
+            'ticket_number' => 'TCK-'.time(),
             'user_id' => $request->user()->id,
             'subject' => $validated['subject'],
             'description' => $validated['description'],
@@ -248,7 +297,7 @@ class GeneralApiController extends Controller
             'message' => 'required|string',
         ]);
 
-        $message = \App\Models\SupportMessage::create([
+        $message = SupportMessage::create([
             'ticket_id' => $ticket->id,
             'sender_id' => $request->user()->id,
             'message' => $validated['message'],
@@ -256,6 +305,7 @@ class GeneralApiController extends Controller
 
         $ticket->update([
             'ticket_status' => 'open',
+            'last_message_at' => now(),
         ]);
 
         return response()->json([
@@ -268,22 +318,20 @@ class GeneralApiController extends Controller
     public function depositWallet(Request $request)
     {
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:500',
-            'payment_method' => 'required|string',
-            'transfer_reference' => 'nullable|string',
-            'receipt_image' => 'nullable|string',
+            'amount' => 'required|numeric|min:1',
+            'payment_method_id' => 'nullable|exists:payment_methods,id',
         ]);
 
         $user = $request->user();
-        $amount = (float)$validated['amount'];
+        $amount = (float) $validated['amount'];
 
-        $transaction = WalletTransaction::create([
+        $transaction = Transaction::create([
+            'transaction_number' => 'TRX-DEP-'.time(),
             'user_id' => $user->id,
-            'type' => 'deposit',
             'amount' => $amount,
-            'balance_after' => $user->wallet_balance + $amount,
-            'description' => "طلب شحن المحفظة عبر {$validated['payment_method']} (رقم السند: " . ($validated['transfer_reference'] ?? 'مباشر') . ")",
-            'status' => 'pending',
+            'currency_id' => 1,
+            'payment_method_id' => $validated['payment_method_id'] ?? 1,
+            'payment_status' => 'pending',
         ]);
 
         return response()->json([
@@ -293,12 +341,22 @@ class GeneralApiController extends Controller
         ]);
     }
 
-    /// 1. جلب قائمة خدمات ومتاجر الشركاء المعتمدة لعرضها في التطبيق (GET /api/store-services)
     public function storeServices()
     {
-        $stores = \App\Models\StoreService::where('is_active', true)
-            ->orderBy('display_order')
-            ->get();
+        $stores = Supplier::where('is_active', true)
+            ->get()
+            ->map(function ($sup) {
+                return [
+                    'id' => $sup->id,
+                    'name' => $sup->name,
+                    'company_name' => $sup->name,
+                    'phone' => $sup->phone,
+                    'address' => $sup->address,
+                    'city' => $sup->city,
+                    'rating' => 4.9,
+                    'is_active' => true,
+                ];
+            });
 
         return response()->json([
             'status' => true,
@@ -306,11 +364,9 @@ class GeneralApiController extends Controller
         ]);
     }
 
-    /// 2. جلب العروض والإعلانات الترويجية النشطة لعرضها في السلايدر المتحرك (GET /api/banners)
     public function banners()
     {
-        // أ. جلب العروض الترويجية النشطة وخصومات الخدمات
-        $offers = \App\Models\Offer::with('service')
+        $offers = Offer::with('service')
             ->where('offer_status', 'active')
             ->latest()
             ->get()
@@ -319,17 +375,16 @@ class GeneralApiController extends Controller
                     'id' => $offer->id,
                     'type' => 'offer',
                     'title' => $offer->title,
-                    'description' => $offer->description ?? ($offer->service ? $offer->service->description_ar : null),
-                    'badge' => $offer->discount_percentage > 0 ? 'خصم ' . (int)$offer->discount_percentage . '%' : 'عرض خاص',
-                    'discount_percentage' => (float)$offer->discount_percentage,
+                    'description' => $offer->description,
+                    'badge' => $offer->discount_percentage > 0 ? 'خصم '.(int) $offer->discount_percentage.'%' : 'عرض خاص',
+                    'discount_percentage' => (float) $offer->discount_percentage,
                     'image_url' => $offer->image_url,
                     'service_id' => $offer->service_id,
                     'service' => $offer->service,
                 ];
             });
 
-        // ب. جلب الإعلانات العامة للشركاء والمنصة
-        $advertisements = \App\Models\Advertisement::where('status', 'active')
+        $advertisements = Advertisement::where('status', 'active')
             ->latest()
             ->get()
             ->map(function ($ad) {
@@ -347,7 +402,6 @@ class GeneralApiController extends Controller
                 ];
             });
 
-        // ج. دمج العروض والإعلانات في مصفوفة واحدة مرتبة للسلايدر
         $banners = $offers->concat($advertisements)->values();
 
         return response()->json([

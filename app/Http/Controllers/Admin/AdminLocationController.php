@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Governorate;
 use App\Models\District;
+use App\Models\Governorate;
 use App\Models\Neighborhood;
+use Illuminate\Http\Request;
 
 class AdminLocationController extends Controller
 {
     public function index()
     {
         $governorates = Governorate::with(['districts.neighborhoods'])->get();
+
         return view('admin.locations.index', compact('governorates'));
     }
 
