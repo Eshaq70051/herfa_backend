@@ -30,10 +30,6 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        if ($this->app->environment('production') || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || request()->header('x-forwarded-proto') === 'https') {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
-        }
-
         Gate::before(function (User $user, string $ability): ?bool {
             if (! str_starts_with($ability, 'admin.')) {
                 return null;
