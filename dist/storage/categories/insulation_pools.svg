@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="poolGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#poolGrad)"/>
+  <!-- Pool Ladder and Water Waves -->
+  <path d="M30 65 Q45 55 60 65 T90 65" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M30 78 Q45 68 60 78 T90 78" fill="none" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
+  <!-- Ladder -->
+  <path d="M72 32 L72 60 M82 32 L82 60 M72 40 L82 40 M72 50 L82 50" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+</svg>

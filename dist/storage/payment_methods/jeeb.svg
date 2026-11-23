@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="28" fill="#2563eb"/>
+  <path d="M36 40 L84 40 C88 40 90 44 88 48 L76 76 C74 80 70 82 66 82 L36 82 C32 82 28 78 28 74 L28 48 C28 44 32 40 36 40 Z" fill="#ffffff" opacity="0.2"/>
+  <rect x="36" y="44" width="48" height="32" rx="6" fill="#ffffff"/>
+  <circle cx="68" cy="60" r="5" fill="#2563eb"/>
+  <text x="60" y="104" fill="#ffffff" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">جيب</text>
+</svg>

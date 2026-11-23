@@ -84,3 +84,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/support/tickets/{id}', [GeneralApiController::class, 'getTicketDetails']);
     Route::post('/support/tickets/{id}/reply', [GeneralApiController::class, 'replyToTicket']);
 });
+
+// مسار احتياطي لخدمة وسائط التخزين عند الطلب عبر واجهة برمجة التطبيقات
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = public_path('storage/'.$path);
+    if (! file_exists($fullPath)) {
+        $fullPath = storage_path('app/public/'.$path);
+    }
+    if (! file_exists($fullPath) || is_dir($fullPath)) {
+        abort(404);
+    }
+
+    return response()->file($fullPath);
+})->where('path', '.*');

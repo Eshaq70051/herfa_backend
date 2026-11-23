@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80">
+  <defs>
+    <linearGradient id="herfaGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#2dd4bf"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="60" height="60" rx="16" fill="url(#herfaGradDark)"/>
+  <path d="M46 25 C41 21 35 23 32 26 C29 29 29 34 32 37 L22 47 C20 49 20 52 22 54 C24 56 27 56 29 54 L39 44 C42 47 47 47 50 44 C53 41 55 35 51 30 L45 36 L40 31 Z" fill="#0f172a"/>
+  <text x="85" y="44" fill="#ffffff" font-family="'Cairo', sans-serif" font-size="28" font-weight="900">حِرفة</text>
+  <text x="160" y="44" fill="#10b981" font-family="'Cairo', sans-serif" font-size="28" font-weight="900">|</text>
+  <text x="180" y="44" fill="#2dd4bf" font-family="system-ui, sans-serif" font-size="24" font-weight="800" letter-spacing="2">HERFA</text>
+  <text x="86" y="62" fill="#94a3b8" font-family="'Cairo', sans-serif" font-size="11" font-weight="600">منصة خدمات وصيانة المنازل المتكاملة</text>
+</svg>

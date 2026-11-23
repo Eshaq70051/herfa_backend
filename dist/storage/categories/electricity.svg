@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="elecGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#elecGrad)"/>
+  <!-- Lightbulb / Bolt -->
+  <circle cx="60" cy="50" r="26" fill="#ffffff" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))"/>
+  <path d="M62 34 L48 54 L58 54 L56 70 L72 48 L62 48 Z" fill="#f59e0b"/>
+  <rect x="52" y="74" width="16" height="5" rx="2" fill="#d97706"/>
+  <rect x="54" y="80" width="12" height="4" rx="2" fill="#b45309"/>
+</svg>

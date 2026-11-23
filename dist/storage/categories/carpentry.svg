@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="carpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#carpGrad)"/>
+  <!-- Hammer & Ruler -->
+  <rect x="56" y="44" width="8" height="46" rx="3" fill="#fed7aa"/>
+  <rect x="42" y="32" width="36" height="14" rx="3" fill="#ffffff"/>
+  <path d="M42 32 L36 38 L42 44 Z" fill="#e5e7eb"/>
+</svg>

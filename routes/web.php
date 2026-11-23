@@ -221,3 +221,16 @@ Route::prefix('admin')->middleware(['auth', 'admin.permission'])->name('admin.')
         Route::delete('/departments/{id}', 'destroyDepartment')->name('departments.destroy');
     });
 });
+
+// مسار احتياطي لخدمة وسائط التخزين في بيئات الاستضافة السحابية
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = public_path('storage/'.$path);
+    if (! file_exists($fullPath)) {
+        $fullPath = storage_path('app/public/'.$path);
+    }
+    if (! file_exists($fullPath) || is_dir($fullPath)) {
+        abort(404);
+    }
+
+    return response()->file($fullPath);
+})->where('path', '.*');

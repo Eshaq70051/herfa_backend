@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="movGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#movGrad)"/>
+  <!-- Moving Truck -->
+  <rect x="28" y="44" width="40" height="32" rx="4" fill="#ffffff"/>
+  <path d="M68 52 L82 52 L92 64 L92 76 L68 76 Z" fill="#ffedd5"/>
+  <circle cx="44" cy="80" r="7" fill="#1e293b"/>
+  <circle cx="44" cy="80" r="3" fill="#ffffff"/>
+  <circle cx="80" cy="80" r="7" fill="#1e293b"/>
+  <circle cx="80" cy="80" r="3" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="cleanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#67e8f9"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#cleanGrad)"/>
+  <!-- Sparkles and spray bottle -->
+  <path d="M46 42 L62 42 L58 50 L68 50 C70 50 72 52 72 54 L68 88 C68 91 65 94 62 94 L46 94 C43 94 40 91 40 88 L44 54 C44 52 45 50 46 50 Z" fill="#ffffff"/>
+  <path d="M52 32 L56 42 L48 42 Z" fill="#cffafe"/>
+  <!-- Sparkles -->
+  <polygon points="85,35 88,42 95,45 88,48 85,55 82,48 75,45 82,42" fill="#ffffff"/>
+  <polygon points="78,65 80,70 85,72 80,74 78,79 76,74 71,72 76,70" fill="#fef08a"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="plumbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#plumbGrad)"/>
+  <!-- Faucet & Drop -->
+  <path d="M40 52 L62 52 C68 52 72 56 72 62 L72 70 L62 70 L62 62 C62 60 60 58 58 58 L40 58 Z" fill="#ffffff"/>
+  <rect x="36" y="46" width="10" height="18" rx="3" fill="#ffffff"/>
+  <rect x="52" y="38" width="16" height="8" rx="2" fill="#e0f2fe"/>
+  <!-- Water Drop -->
+  <path d="M67 78 C67 78 74 86 74 90 C74 94 70.8 97 67 97 C63.2 97 60 94 60 90 C60 86 67 78 67 78 Z" fill="#38bdf8"/>
+</svg>

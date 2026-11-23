@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="paintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#paintGrad)"/>
+  <!-- Paint Roller -->
+  <rect x="36" y="32" width="48" height="16" rx="4" fill="#ffffff"/>
+  <path d="M60 48 L60 62 L48 62 L48 76 L52 76 L52 66 L64 66 L64 48 Z" fill="#fdf2f8"/>
+  <rect x="46" y="76" width="8" height="20" rx="2" fill="#ffffff"/>
+</svg>

@@ -11,6 +11,8 @@
         { "src": "/js/(.*)", "dest": "/js/$1" },
         { "src": "/vendor/(.*)", "dest": "/vendor/$1" },
         { "src": "/images/(.*)", "dest": "/images/$1" },
+        { "src": "/storage/(.*)", "dest": "/storage/$1" },
+        { "src": "/api/storage/(.*)", "dest": "/storage/$1" },
         { "src": "/favicon.ico", "dest": "/favicon.ico" },
         { "handle": "filesystem" },
         { "src": "/(.*)", "dest": "/api/index.php" }

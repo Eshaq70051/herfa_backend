@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="28" fill="#1b4d3e"/>
+  <circle cx="60" cy="48" r="24" fill="#ffffff" opacity="0.15"/>
+  <path d="M42 68 L60 36 L78 68 Z" fill="#f59e0b"/>
+  <path d="M52 68 L60 52 L68 68 Z" fill="#ffffff"/>
+  <text x="60" y="96" fill="#ffffff" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">الكريمي</text>
+</svg>
